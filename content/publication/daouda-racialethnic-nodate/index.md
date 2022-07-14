@@ -1,6 +1,6 @@
 ---
 title: "Racial/Ethnic Disparities in Nationwide PM2.5 Concentrations: Perils of Assuming a Linear Relationship"
-date: -01-01
+date: 2022-06-01
 publishDate: 2022-07-14T20:53:35.733871Z
 authors: ["Misbath Daouda", "Lucas Henneman", "Jeff Goldsmith", "Marianthi-Anna Kioumourtzoglou", "Joan A. Casey"]
 publication_types: ["2"]
