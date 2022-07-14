@@ -1,14 +1,13 @@
 ---
 title: "On the accuracy and potential of Google Maps location history data to characterize individual mobility for air pollution health studies"
 date: 2019-01-01
-publishDate: 2019-11-16T22:21:31.366293Z
-authors: ["Xiaonan Yu", "Amy L Stuart", "Yang Liu", "Cesunica Ivey", "Armistead Russell", "Haidong Kan", "Lucas Henneman", "Stefanie Ebelt Sarnat", "Samiul Hasan", "Anwar Sadmani", "Xuchao Yang", "Haofei Yu"]
+publishDate: 2022-07-14T20:53:35.722447Z
+authors: ["X. Yu", "A.L. Stuart", "Y. Liu", "C.E. Ivey", "A.G. Russell", "H. Kan", "L.R.F. Henneman", "S.E. Sarnat", "S. Hasan", "A. Sadmani", "X. Yang", "H. Yu"]
 publication_types: ["2"]
-abstract: ""
+abstract: "© 2019 Elsevier Ltd Appropriately characterizing spatiotemporal individual mobility is important in many research areas, including epidemiological studies focusing on air pollution. However, in many retrospective air pollution health studies, exposure to air pollution is typically estimated at the subjects’ residential addresses. Individual mobility is often neglected due to lack of data, and exposure misclassification errors are expected. In this study, we demonstrate the potential of using location history data collected from smartphones by the Google Maps application for characterizing historical individual mobility and exposure. Here, one subject carried a smartphone installed with Google Maps, and a reference GPS data logger which was configured to record location every 10 s, for a period of one week. The retrieved Google Maps Location History (GMLH) data were then compared with the GPS data to evaluate their effectiveness and accuracy of the GMLH data to capture individual mobility. We also conducted an online survey (n = 284) to assess the availability of GMLH data among smartphone users in the US. We found the GMLH data reasonably captured the spatial movement of the subject during the one-week time period at up to 200 m resolution. We were able to accurately estimate the time the subject spent in different microenvironments, as well as the time the subject spent driving during the week. The estimated time-weighted daily exposures to ambient particulate matter using GMLH and the GPS data logger were also similar (error less than 1.2%). Survey results showed that GMLH data may be available for 61% of the survey sample. Considering the popularity of smartphones and the Google Maps application, detailed historical location data are expected to be available for large portion of the population, and results from this study highlight the potential of these location history data to improve exposure estimation for retrospective epidemiological studies. Google Maps location history data captured the subject's mobility during the study period, suggesting such data has great potential to be used to improve air pollution exposure estimation."
 featured: false
 publication: "*Environmental Pollution*"
 tags: ["Air pollution exposure", "Exposure misclassification", "Smartphone location data", "Space-time activity"]
-url_pdf: "https://doi.org/10.1016/j.envpol.2019.05.081. https://linkinghub.elsevier.com/retrieve/pii/S0269749118359049"
 doi: "10.1016/j.envpol.2019.05.081"
 ---
 

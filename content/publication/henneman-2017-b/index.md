@@ -1,7 +1,7 @@
 ---
 title: "Accountability assessment of regulatory impacts on ozone and PM2.5 concentrations using statistical and deterministic pollutant sensitivities"
 date: 2017-01-01
-publishDate: 2019-11-16T22:21:31.371489Z
+publishDate: 2022-07-14T20:53:35.718256Z
 authors: ["Lucas RF Henneman", "Howard H Chang", "David Lavoue", "James A Mulholland", "Armistead G Russell"]
 publication_types: ["2"]
 abstract: ""
