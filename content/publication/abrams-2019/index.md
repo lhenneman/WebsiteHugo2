@@ -1,0 +1,13 @@
+---
+title: "Impact of air pollution control policies on cardiorespiratory emergency department visits, Atlanta, GA, 1999–2013"
+date: 2019-05-01
+publishDate: 2019-11-16T22:21:31.367378Z
+authors: ["Joseph Y. Abrams", "Mitchel Klein", "Lucas R.F. Henneman", "Stefanie E. Sarnat", "Howard H. Chang", "Matthew J. Strickland", "James A. Mulholland", "Armistead G. Russell", "Paige E. Tolbert"]
+publication_types: ["2"]
+abstract: "Background: Air pollution control policies resulting from the 1990 Clean Air Act Amendments were aimed at reducing pollutant emissions, ambient concentrations, and ultimately adverse health outcomes. Objectives: As part of a comprehensive air pollution accountability study, we used a counterfactual study design to estimate the impact of mobile source and electricity generation control policies on health outcomes in the Atlanta, GA, metropolitan area from 1999 to 2013. Methods: We identified nine sets of pollution control policies, estimated changes in emissions in the absence of these policies, and employed those changes to estimate counterfactual daily ambient pollutant concentrations at a central monitoring location. Using a multipollutant Poisson time-series model, we estimated associations between observed pollutant levels and daily counts of cardiorespiratory emergency department (ED) visits at Atlanta hospitals. These associations were then used to estimate the number of ED visits prevented due to control policies, comparing observed to counterfactual daily concentrations. Results: Pollution control policies were estimated to substantially reduce ambient concentrations of the nine pollutants examined for the period 1999–2013. We estimated that pollutant concentration reductions resulting from the control policies led to the avoidance of over 55,000 cardiorespiratory disease ED visits in the five-county metropolitan Atlanta area, with greater proportions of visits prevented in later years as effects of policies became more fully realized. During the final two years of the study period, 2012–2013, the policies were estimated to prevent 16.5% of ED visits due to asthma (95% interval estimate: 7.5%, 25.1%), 5.9% (95% interval estimate: −0.4%, 12.3%) of respiratory ED visits, and 2.3% (95% interval estimate: −1.8%, 6.2%) of cardiovascular disease ED visits. Discussion: Pollution control policies resulting from the 1990 Clean Air Act Amendments led to substantial estimated reductions in ambient pollutant concentrations and cardiorespiratory ED visits in the Atlanta area."
+featured: false
+publication: "*Environment International*"
+url_pdf: "https://www.sciencedirect.com/science/article/pii/S0160412018328046"
+doi: "10.1016/j.envint.2019.01.052"
+---
+
