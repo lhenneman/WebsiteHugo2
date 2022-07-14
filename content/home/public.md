@@ -15,6 +15,7 @@ weight = 90
 
 +++
 ## In the news
+- [Walter A. Rosenblith New Investigator for 2021 announced](https://www.healtheffects.org/announcements/walter-rosenblith-new-investigator-2021-announced) (Health Effects Institute, March, 2022)
 - [Mason Engineer researcher investigates air pollution's impact on health](https://volgenau.gmu.edu/news/588781) (VSExpress, Oct. 1, 2020)
 
 ## Opinion pieces
