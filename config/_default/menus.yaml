@@ -20,7 +20,7 @@ main:
     url: '#classes'
     weight: 50
   - name: Public
-    url: '#twitter'
+    url: '#public'
     weight: 60
   - name: Contact
     url: '#contact'
