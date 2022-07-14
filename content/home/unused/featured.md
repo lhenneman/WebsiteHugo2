@@ -1,4 +1,5 @@
 ---
+active = false  # Activate this widget? true/false
 # An instance of the Featured widget.
 # Documentation: https://wowchemy.com/docs/page-builder/
 widget: featured
