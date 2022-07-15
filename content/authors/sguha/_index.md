@@ -71,7 +71,7 @@ social:
   link: files/ShreyaGuhaResume.pdf
 
 user_groups: 
-- "Grad Students"
+- "Students"
 ---
 
 Hello, I am a PhD student interested and concerned about the global climate change, and how effective are the policies in reducing the harmful emissions causing that. I am primarily working on air pollution emissions, meteorological effects, recent environmental policies and their impacts in China and in the US.

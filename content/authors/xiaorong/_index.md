@@ -61,7 +61,7 @@ email: ""
 # Organizational groups that you belong to (for People widget)
 #   Set this to `[]` or comment out if you are not using People widget.  
 user_groups: 
-- "Grad Students"
+- "Students"
 ---
 
 Hello, I am a PhD student who is in passion with air quality modeling research. My current project is to evaluate the effects of early-life community-level social and environmental factors on late-life ADRD and the extent to which these factors con- tribute to racial disparities on ADRD in a nationally representative sample. In this project, our team focuses on modeling historical air quality in the United States to produce historical exposure estimates for epidemiological research. 
