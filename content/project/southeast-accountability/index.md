@@ -1,10 +1,6 @@
 ---
 title: Air pollution accountability in the southeastern United States
-tags:
-  - accountability
-  - United States
-  - mobile emissions sources
-  - power plants
+tags: ["accountability", "United States", "mobile emissions sources", "power plants"]
 date: 2019-11-16T18:46:38-05:00
 
 # Optional external URL for project (replaces project detail page).
