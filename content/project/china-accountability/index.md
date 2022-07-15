@@ -1,10 +1,6 @@
 ---
 title: Air pollution accountability of environmental regulations in China
-tags:
-  - accountability
-  - China
-  - mobile emissions sources
-  - power plants
+tags: ["accountability", "China", "mobile emissions sources", "power plants"]
 date: '2016-04-27T00:00:00Z'
 
 # Optional external URL for project (replaces project detail page).
