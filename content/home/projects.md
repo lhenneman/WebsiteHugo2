@@ -30,8 +30,10 @@ content:
   filter_button:
     - name: All
       tag: '*'
-    - name: Accountability
+    - name: Air pollution accountability
       tag: accountability
+    - name: Exposure modeling
+      tag: exposure
     - name: Environmental Justice
       tag: environmental justice
 
