@@ -3,7 +3,7 @@
 
 title: "Predictive, Source-oriented Modeling and Measurements to Evaluate Community Exposures to Air Pollutants and Noise from Unconventional Oil and Gas Development"
 summary: ""
-authors: ["admin", "mrasel"]
+authors: ["admin", "munshi"]
 tags: ["unconventional oil and gas", "environmental justice", "exposure modeling", "air quality modeling"]
 categories: []
 date: 2022-07-15T13:45:21-04:00
