@@ -8,7 +8,7 @@ abstract: "© 2019 Lippincott Williams and Wilkins. All rights reserved. Backgro
 featured: false
 publication: "*Epidemiology*"
 tags: ["Air pollution accountability", "Coal power plant emissions", "Difference-in-difference", "PM 2.5"]
-url_code: "osf.io/ s8fd3."
+url_code: "https://osf.io/s8fd3/"
 doi: "10.1097/EDE.0000000000001024"
 ---
 
