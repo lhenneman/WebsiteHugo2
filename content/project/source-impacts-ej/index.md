@@ -3,7 +3,7 @@
 
 title: "Air pollution source impacts at fine scales for long-term regulatory accountability and environmental justice"
 summary: ""
-authors: []
+authors: ["admin"]
 tags: ["air quality modeling", "source apportionment", "environmental justice", "accountability", "source impacts"]
 categories: []
 date: 2022-07-15T13:56:58-04:00
@@ -40,7 +40,7 @@ url_video: ""
 slides: ""
 ---
 
-This project was awarded the Rosinbleth Award by the Health Effects Institute. The announcement is [here](https://www.healtheffects.org/announcements/walter-rosenblith-new-investigator-2021-announced).
+This project was awarded the 2021 Rosinbleth Award by the Health Effects Institute. The announcement is [here](https://www.healtheffects.org/announcements/walter-rosenblith-new-investigator-2021-announced).
 
 This project is motivated by a fundamental disconnect in air pollution policy—scientists have established strong relationships between ambient concentrations and health, but regulations must necessarily target air pollution sources. Regulators lack information on air pollution source impacts—i.e., the contributions of emissions source categories to ambient air pollution. Similarly, regulators are increasingly attentive to exposure disparities between demographic groups, as highlighted in President Biden’s recent executive order, in which he directed United States agencies that “40 percent of the overall [policy] benefits flow to disadvantaged communities.”
 
