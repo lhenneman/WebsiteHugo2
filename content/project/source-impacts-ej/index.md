@@ -40,6 +40,9 @@ url_video: ""
 slides: ""
 ---
 
+This project was awarded the Rosinbleth Award by the Health Effects Institute. The announcement is [here](https://www.healtheffects.org/announcements/walter-rosenblith-new-investigator-2021-announced).
+
 This project is motivated by a fundamental disconnect in air pollution policy—scientists have established strong relationships between ambient concentrations and health, but regulations must necessarily target air pollution sources. Regulators lack information on air pollution source impacts—i.e., the contributions of emissions source categories to ambient air pollution. Similarly, regulators are increasingly attentive to exposure disparities between demographic groups, as highlighted in President Biden’s recent executive order, in which he directed United States agencies that “40 percent of the overall [policy] benefits flow to disadvantaged communities.”
 
 To address these needs, I propose developing national, fine-scale, daily PM<sub>2.5</sub> source impact exposure estimates and their uncertainties across 2011-2020. In addition, I will quantify the extent that exposure changes have occurred equitably across population groups. I will make the code and data outcomes publicly available. To my knowledge, this will be the first such product of its kind, and it will unlock a new wave of accountability, epidemiology, and environmental justice research that focuses on source impacts and will lead to more effective air quality regulation.
+
