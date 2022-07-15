@@ -19,6 +19,9 @@ content:
   # Default filter index (e.g. 0 corresponds to the first `filter_button` instance below).
   filter_default: 0
 
+  # try to add couont
+  count: 5
+
   # Filter toolbar (optional).
   # Add or remove as many filters (`filter_button` instances) as you like.
   # To show all items, set `tag` to "*".

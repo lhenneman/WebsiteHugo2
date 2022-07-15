@@ -1,6 +1,6 @@
 ---
 # Display name
-name: Munshi Md Rasel
+title: Munshi Md Rasel
 
 # Username (this should match the folder name)
 authors:
