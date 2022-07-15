@@ -1,11 +1,7 @@
 ---
 title: "Air pollution accountability and United States coal power plants"
 date: 2019-11-16T18:47:53-05:00
-tags:
-  - coal
-  - accountability
-  - United States
-  - power plants
+tags: ["coal", "accountability", "United States", "power plants"]
 date: '2019-11-16T18:47:53-05:00'
 
 # Optional external URL for project (replaces project detail page).
