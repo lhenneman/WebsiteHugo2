@@ -33,7 +33,6 @@ content:
     - name: Air pollution accountability
       tag: accountability
     - name: Exposure modeling
-      tag: exposure
       tag: exposure modeling
     - name: Environmental Justice
       tag: environmental justice
