@@ -60,7 +60,7 @@ social:
   link: files/cv_rasel.pdf
 
 user_groups: 
-- "Grad Students"
+- "Students"
 ---
 
 I like to introduce myself as an Environmental Engineer. My research focuses on understanding the air pollution accountability	chain and helping policy makers to make the right decisions so that we can all enjoy a safe and clean environment. Feel free to take a look at my resume or contact me.
