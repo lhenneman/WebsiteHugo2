@@ -33,3 +33,5 @@ China has made impressive progress improving its air quality over the last decad
 {{< figure library="true" src="beijing_pm25.png" title=" Annual average PM<sub>2.5</sub> concentration in Beijing." numbered="true" lightbox="true" >}}
 
 In work funded by the Health Effects Institute, I will work with an international, cross-disciplinary team to directly quantify benefits of environmental regulations targeting autmoboiles, power plants, and more. We'll use chemical transport models and source apportionment techniques to attribute improvements in air quality to changes in emissions. In addition, we will employ direct accountability approaches to quantify health benefits to individual regulations.
+
+More information is available [here](https://www.healtheffects.org/research/ongoing-research/accounting-health-benefits-air-pollution-regulations-china-2008%E2%80%932020). 
