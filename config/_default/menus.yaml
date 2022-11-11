@@ -8,7 +8,7 @@ main:
     url: '#background'
     weight: 10
   - name: People
-    url: '#authors'
+    url: '#people'
     weight: 20
   - name: Publications
     url: '#publications'
