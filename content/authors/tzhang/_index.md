@@ -61,8 +61,8 @@ social:
   
 # Link to a PDF of your resume/CV from the About widget.
 # To enable, copy your resume/CV to `static/files/cv.pdf` and uncomment the lines below.  
-- icon: cv
-  link: files/CV_Ting_Zhang.pdf
+# - icon: cv
+#   link: files/CV_Ting_Zhang.pdf
 
 user_groups: 
 - "Postdocs"

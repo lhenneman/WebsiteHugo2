@@ -67,7 +67,7 @@ social:
 # To enable, copy your resume/CV to `static/files/cv.pdf` and uncomment the lines below.  
 - icon: cv
   icon_pack: ai
-  link: files/ShreyaGuhaResume.pdf
+  link: uploads/ShreyaGuhaResume.pdf
 
 user_groups: 
 - "Students"
