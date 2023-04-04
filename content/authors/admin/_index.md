@@ -70,5 +70,5 @@ email: ''
 highlight_name: true
 ---
 
-Welcome to my personal website---I am an Environmental Engineer interested in the health and air quality benefits of environmental regulations. I teach classes in air pollution, environmental models, and systems engineering. Take a look around and please don't hesitate to reach out.
+Welcome to my personal website---I am an Environmental Engineer interested in how air quality and health are influenced by regulatory policies and climate change. I teach classes in air pollution, climate change, and environmental  engineering systems. Take a look around and please don't hesitate to reach out.
 
