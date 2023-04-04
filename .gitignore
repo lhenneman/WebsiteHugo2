@@ -9,3 +9,7 @@ go.sum
 .hugo_build.lock
 .Rproj.user
 .Rhistory
+.DS_Store
+*/.DS_Store
+*/*/.DS_Store
+*/*/*/.DS_Store
