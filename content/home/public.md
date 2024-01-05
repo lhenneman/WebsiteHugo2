@@ -28,9 +28,9 @@ weight = 90
 
 ***
 
-<a class="twitter-timeline" data-height="600" href="https://twitter.com/lucas_henneman?ref_src=twsrc%5Etfw">
-  Tweets by lucas_henneman
-  </a> <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+<> (<a class="twitter-timeline" data-height="600" href="https://twitter.com/lucas_henneman?ref_src=twsrc%5Etfw">)
+<> (Tweets by lucas_henneman)
+<> (</a> <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>)
 
 
 
