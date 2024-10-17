@@ -3,8 +3,8 @@
 # Hugo Documentation: https://gohugo.io/getting-started/configuration/#all-configuration-settings
 # This file is formatted using YAML syntax - learn more at https://learnxinyminutes.com/docs/yaml/
 
-title: Lucas Henneman # Website name
-baseURL: 'https://lucashenneman.org' # Website URL
+title: HAQ Lab # Website name
+baseURL: 'https://healthyairteam.org' # Website URL
 
 ############################
 ## LANGUAGE
