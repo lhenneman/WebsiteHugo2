@@ -42,7 +42,7 @@ education:
 social:
 - icon: envelope
   icon_pack: fas
-  link: "mbohloul@gmu.edu"
+  link: "mailto:mbohloul@gmu.edu"
 - icon: google scholar
   icon_pack: fab
   link: https://scholar.google.com/citations?user=yYysc-cAAAAJ&hl=en
