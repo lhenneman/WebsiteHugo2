@@ -21,11 +21,11 @@ organizations:
 bio: Linking air quality to emissions, meteorology and policy regulations
 
 interests:
-- Air emissions of PM2.5, PM10, VOCs, and NOx
-- Air quality modeling
-- Data analysis using R programming language
+- Model estimation of source apportionment
+- Environmental policy
 - Public health
-- Epidemiology
+- Environmental justice
+
 
 education:
   courses:
@@ -54,6 +54,9 @@ social:
 - icon: envelope
   icon_pack: fas
   link: mailto:xshan2@gmu.edu
+- icon: cv
+  icon_pack: ai
+  link: uploads/CV_Xiaorong_2024_Oct_New.pdf
 
 # Enter email to display Gravatar (if Gravatar enabled in Config)
 email: ""
@@ -64,4 +67,21 @@ user_groups:
 - "Students"
 ---
 
-Hello, I am a PhD student who is in passion with air quality modeling research. My current project is to evaluate the effects of early-life community-level social and environmental factors on late-life ADRD and the extent to which these factors con- tribute to racial disparities on ADRD in a nationally representative sample. In this project, our team focuses on modeling historical air quality in the United States to produce historical exposure estimates for epidemiological research. 
+My research focuses on using different source-specific air models to estimate emissions or exposures from specific sources. I am examining anthropogenic sources such as on-road vehicles, power plants, oil and gas wells, and residential and commercial coal combustion, as well as natural sources like wildfires. I analyze time series data, applying various scenarios in my models to explore historical, present, and even future trends to assess how legislation and regulations have affected air quality and their health impacts.
+
+Latest: 
+
+PhD thesis proposal passed: September 2024
+
+MPower Scholarship received: August 2024
+
+President, Civil & Environmental Graduate Student Association (GRACE): 2023 – present
+
+Vice President, Graduate Professional Student Organization (GAPSA) at George Mason University: 2022 – present
+
+46th ISEE Conference, Santiago, Chile, Oral Presentation: “Evaluating the 1940 Exposures: A Modern Projection and Comparison,” August 2024
+
+22nd CMAS Conference, Poster Presentation: “Development of PM2.5 transport: Modeling the Spatial Distribution of Camp Fire from California to New York,” November 2022
+
+PhD qualifying exam passed: August 2022
+
