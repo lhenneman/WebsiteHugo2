@@ -171,8 +171,10 @@ document.addEventListener('DOMContentLoaded', () => {
         isUserSliding = true;
         let val = Math.round(parseFloat(e.target.value) * 10) / 10;
         let activeMid = parseFloat(document.getElementById('labelGlobalMid').textContent);
-        if (val > activeMid) {
-            val = activeMid;
+
+        let upperLimit = (currentScenario === 'baseline') ? activeMid : -0.1;
+        if (val > upperLimit) {
+            val = upperLimit;
             e.target.value = val;
         }
         sliderMinReadout.textContent = val.toFixed(1);
@@ -183,8 +185,10 @@ document.addEventListener('DOMContentLoaded', () => {
         isUserSliding = true;
         let val = Math.round(parseFloat(e.target.value) * 10) / 10;
         let activeMid = parseFloat(document.getElementById('labelGlobalMid').textContent);
-        if (val < activeMid) {
-            val = activeMid;
+
+        let lowerLimit = (currentScenario === 'baseline') ? activeMid : 0.1;
+        if (val < lowerLimit) {
+            val = lowerLimit;
             e.target.value = val;
         }
         sliderMaxReadout.textContent = val.toFixed(1);
