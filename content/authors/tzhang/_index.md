@@ -65,7 +65,7 @@ social:
 #   link: files/CV_Ting_Zhang.pdf
 
 user_groups: 
-- "Postdocs"
+- "Alumni"
 ---
 
 My research focus on the measurement, source assignment, and health risk assessment of air pollution. I take a multidisciplinary approach, drawing on environmental science, geography, epidemiology, and biostatistics. I am committed to accelerating solutions that provide cleaner and healthier air for vulnerable populations and the world at large. If you have questions, ideas, or just want to say hello, feel free to get in touch!
