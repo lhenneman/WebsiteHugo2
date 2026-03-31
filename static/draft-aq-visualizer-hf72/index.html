@@ -5,20 +5,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DC Air Quality Visualization</title>
-
-    <!-- Leaflet CSS -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
-
-    <!-- Tailwind CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
     <script src="https://cdn.tailwindcss.com"></script>
-
-    <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
-
-    <!-- Custom CSS -->
     <link rel="stylesheet" href="/static/style.css">
-
     <style>
         body {
             font-family: 'Inter', sans-serif;
@@ -28,49 +18,64 @@
             -webkit-appearance: none;
             appearance: none;
             pointer-events: none;
-            /* Allow clicks to pass through track */
         }
 
         .custom-slider:focus {
             outline: none;
         }
 
+        /* Professional Custom Sliders */
         .custom-slider::-webkit-slider-thumb {
             -webkit-appearance: none;
             pointer-events: auto;
-            /* Catch clicks on thumb */
-            width: 14px;
-            height: 20px;
+            width: 16px;
+            height: 16px;
             background: #ffffff;
-            border: 2px solid #4b5563;
-            border-radius: 3px;
-            cursor: ew-resize;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
-            margin-top: -2px;
+            border: 2px solid #2563EB;
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+            margin-top: -6px;
+            transition: transform 0.1s ease-in-out;
         }
 
-        .custom-slider::-webkit-slider-runnable-track {
-            width: 100%;
-            height: 100%;
-            background: transparent;
-            border: none;
+        .custom-slider::-webkit-slider-thumb:hover {
+            transform: scale(1.15);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+        }
+
+        .custom-slider::-webkit-slider-thumb:active {
+            cursor: grabbing;
+            transform: scale(1.05);
         }
 
         .custom-slider::-moz-range-thumb {
             pointer-events: auto;
-            /* Catch clicks on thumb */
-            width: 14px;
-            height: 20px;
+            width: 16px;
+            height: 16px;
             background: #ffffff;
-            border: 2px solid #4b5563;
-            border-radius: 3px;
-            cursor: ew-resize;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+            border: 2px solid #2563EB;
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+            transition: transform 0.1s ease-in-out;
+        }
+
+        .custom-slider::-moz-range-thumb:hover {
+            transform: scale(1.15);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+        }
+
+        .custom-slider::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 4px;
+            background: transparent;
+            border: none;
         }
 
         .custom-slider::-moz-range-track {
             width: 100%;
-            height: 100%;
+            height: 4px;
             background: transparent;
             border: none;
         }
@@ -78,49 +83,59 @@
 </head>
 
 <body class="bg-gray-50 h-screen flex flex-col">
+    <!-- Fast Hover Tooltip Container -->
+    <div id="scenarioTooltip"
+        class="fixed bg-slate-800 text-white text-[15px] font-medium py-1 px-3 rounded shadow-xl pointer-events-none z-[99999] opacity-0 transition-opacity duration-150 whitespace-nowrap">
+    </div>
 
-    <!-- Header -->
     <header class="bg-white shadow-sm z-10 p-4 border-b border-gray-200">
         <div class="container mx-auto flex justify-between items-center">
-            <h1 class="text-xl font-semibold text-gray-800">DC Road Pricing Air Quality Analysis</h1>
-            <div class="text-sm text-gray-500">Visualization of CMAQ Model Output</div>
+            <h1 class="text-xl font-semibold text-gray-800">Air Quality Changes with Road Pricing in Washington, DC</h1>
+            <button id="infoBtn"
+                class="bg-white text-gray-800 px-3 py-1.5 rounded shadow hover:bg-gray-50 font-medium text-sm flex items-center border border-gray-200">
+                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+                About this Data
+            </button>
         </div>
     </header>
 
-    <!-- Main Content -->
     <div class="flex-1 flex overflow-hidden">
-
-        <!-- Sidebar Controls -->
-        <aside class="w-80 bg-white shadow-lg z-20 overflow-y-auto border-r border-gray-200 flex flex-col">
+        <aside class="w-[380px] bg-white shadow-lg z-20 overflow-y-auto border-r border-gray-200 flex flex-col">
             <div class="p-6 space-y-6">
 
-                <!-- Month Selector -->
+                <!-- Month Grid -->
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">Month</label>
-                    <select id="monthSelect"
-                        class="w-full bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5">
-                        <option value="Feb" selected>February</option>
-                        <option value="May">May</option>
-                        <option value="Aug">August</option>
-                        <option value="Nov">November</option>
-                    </select>
+                    <div class="grid grid-cols-4 gap-2 h-10">
+                        <button class="month-btn active bg-blue-500 text-white rounded text-sm font-medium transition"
+                            data-val="Feb">Feb</button>
+                        <button
+                            class="month-btn bg-gray-100 text-gray-700 hover:bg-gray-200 rounded text-sm font-medium transition"
+                            data-val="May">May</button>
+                        <button
+                            class="month-btn bg-gray-100 text-gray-700 hover:bg-gray-200 rounded text-sm font-medium transition"
+                            data-val="Aug">Aug</button>
+                        <button
+                            class="month-btn bg-gray-100 text-gray-700 hover:bg-gray-200 rounded text-sm font-medium transition"
+                            data-val="Nov">Nov</button>
+                    </div>
                 </div>
 
-                <!-- Scenario Selector -->
+                <!-- Scenario Grid -->
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">Scenario</label>
-                    <select id="scenarioSelect"
-                        class="w-full bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5">
-                        <option value="baseline">Baseline (Absolute)</option>
-                        <option disabled>--- Scenarios (Difference from Baseline) ---</option>
-                        <option value="c0_t1">C0 T1 (Small Cordon, Low Toll)</option>
-                        <option value="c0_t2">C0 T2 (Small Cordon, High Toll)</option>
-                        <option value="c1_t1">C1 T1 (Small + Thru, Low Toll)</option>
-                        <option value="c1_t2">C1 T2 (Small + Thru, High Toll)</option>
-                        <option value="c2_t1">C2 T1 (Large Cordon, Low Toll)</option>
-                        <option value="c2_t2">C2 T2 (Large Cordon, High Toll)</option>
-                    </select>
-                    <p class="mt-1 text-xs text-gray-500" id="scenarioDesc">Baseline scenario showing absolute
+                    <button id="baselineBtn"
+                        class="scenario-btn active w-full mb-3 bg-blue-100 border-2 border-blue-500 text-blue-800 rounded p-2 text-sm font-medium text-center transition shadow-sm"
+                        data-val="baseline">
+                        Baseline (Absolute)
+                    </button>
+                    <div id="scenarioGrid" class="grid grid-cols-2 gap-3">
+                        <!-- SVGs injected via JS -->
+                    </div>
+                    <p class="mt-2 text-xs text-gray-500" id="scenarioDesc">Baseline scenario showing absolute
                         concentrations.</p>
                 </div>
 
@@ -129,13 +144,13 @@
                     <label class="block text-sm font-medium text-gray-700 mb-2">Pollutant</label>
                     <select id="pollutantSelect"
                         class="w-full bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5">
-                        <option value="O3_MDA8_MO">Ozone (MDA8) [ppb]</option>
-                        <option value="NO2_MO">NO2 [ppb]</option>
-                        <option value="PM25_TOT_MO">PM2.5 [µg/m³]</option>
+                        <option value="NO2_MO">NO₂ [ppb]</option>
+                        <option value="O3_MDA8_MO">O₃ (MDA8) [ppb]</option>
+                        <option value="PM25_TOT_MO">PM₂.₅ [µg/m³]</option>
                     </select>
                 </div>
 
-                <!-- Legend Container (Populated by JS) -->
+                <!-- Legend Container -->
                 <div id="legendContainer" class="mt-4 pt-4 border-t border-gray-200">
                     <div class="flex justify-between items-center mb-3">
                         <h3 class="text-sm font-medium text-gray-700">Legend & Color Scale</h3>
@@ -146,13 +161,10 @@
                         <span>Max: <span id="sliderMaxReadout" class="font-mono text-red-600">-</span></span>
                     </div>
 
-                    <div class="relative w-full h-8 mb-2">
-                        <!-- Visual Gradient -->
-                        <div id="legendGradient"
-                            class="absolute w-full h-4 top-2 rounded border border-gray-300 shadow-inner"
-                            style="background: #e5e7eb;"></div>
-
-                        <!-- Sliders Overlay -->
+                    <div class="relative w-full h-8 mb-2 border border-gray-300 rounded shadow-inner"
+                        style="background: #e5e7eb;">
+                        <div id="legendGradient" class="absolute w-full h-full top-0 left-0 rounded"
+                            style="background: transparent;"></div>
                         <div class="absolute w-full h-8 top-0">
                             <input type="range" id="scaleMinSlider" step="0.1"
                                 class="absolute top-0 left-0 w-full h-full bg-transparent m-0 p-0 z-10 custom-slider">
@@ -161,52 +173,80 @@
                         </div>
                     </div>
 
-                    <!-- Static Bounds Labels -->
                     <div class="flex justify-between text-[10px] text-gray-500 mb-2">
                         <span id="labelGlobalMin">-</span>
                         <span id="labelGlobalMid">-</span>
                         <span id="labelGlobalMax">-</span>
                     </div>
-
-                    <!-- Hidden legacy elements to keep existing JS happy momentarily -->
-                    <div class="hidden">
-                        <span id="legendMin">Min</span>
-                        <span id="legendMax">Max</span>
-                        <span id="legendMid">Mid</span>
-                    </div>
                 </div>
 
             </div>
-
-            <div class="mt-auto p-4 bg-gray-50 text-xs text-gray-400 border-t border-gray-200">
-                Data Source: GMU / REACH_RP1
+            <div class="mt-auto p-4 bg-gray-50 text-xs text-gray-500 border-t border-gray-200">
+                Traffic demand modeling and air quality modeling performed by the REACH Center. Research reported in
+                this web tool was supported by the National Institute of Environmental Health Sciences of the National
+                Institutes of Health under award number 1-P20ES036775. This data has not been peer reviewed.
             </div>
         </aside>
 
-        <!-- Map Container -->
+        <!-- Map -->
         <main class="flex-1 relative">
             <div id="map" class="h-full w-full bg-gray-100"></div>
 
-            <!-- Floating Info Panel -->
             <div id="infoPanel"
                 class="absolute top-4 right-4 bg-white/90 backdrop-blur-sm p-4 rounded-lg shadow-lg border border-gray-200 max-w-xs hidden z-[1000]">
                 <h4 class="font-semibold text-gray-900 border-b pb-1 mb-2" id="infoTitle">Tract Info</h4>
-                <div id="infoContent" class="text-sm text-gray-700 space-y-1">
-                    <!-- Content injected by JS -->
-                </div>
+                <div id="infoContent" class="text-sm text-gray-700 space-y-1"></div>
             </div>
         </main>
-
     </div>
 
-    <!-- Leaflet JS -->
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
-        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    <!-- Info Modal -->
+    <div id="infoModalOverlay"
+        class="fixed inset-0 bg-black/50 z-[2000] hidden flex items-center justify-center backdrop-blur-sm">
+        <div
+            class="bg-white rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto m-4 text-sm text-gray-800">
+            <div class="p-6 border-b border-gray-200 flex justify-between items-center sticky top-0 bg-white shadow-sm">
+                <h2 class="text-xl font-bold">About this Data</h2>
+                <button id="closeInfoBtn" class="text-gray-500 hover:text-gray-900 text-2xl font-bold">&times;</button>
+            </div>
+            <div class="p-6 space-y-4">
+                <h3 class="font-bold text-lg text-blue-800 border-b pb-1">Scenarios</h3>
+                <p><strong>Baseline:</strong> The base case absolute concentrations from the CMAQ model.</p>
+                <div class="space-y-3 my-2">
+                    <div class="bg-gray-50 p-3 rounded border">
+                        <strong class="text-red-600 block mb-1">Small cordon with no toll on 395</strong>
+                        A small cordon area in downtown DC.
+                    </div>
+                    <div class="bg-gray-50 p-3 rounded border">
+                        <strong class="text-red-600 block mb-1">Small cordon with toll on 395</strong>
+                        The small cordon plus major through-routes.
+                    </div>
+                    <div class="bg-gray-50 p-3 rounded border">
+                        <strong class="text-red-600 block mb-1">Large cordon</strong>
+                        A larger pricing cordon covering most of DC.
+                    </div>
+                </div>
+                <p><strong>Tolls:</strong> Low Toll ( <span class="font-bold bg-green-100 px-1 rounded text-lg">$</span>
+                    ) vs High Toll ( <span class="font-bold bg-green-100 px-1 rounded text-lg">$$</span> ).</p>
 
-    <!-- Chroma.js for Color Scales -->
+                <h3 class="font-bold text-lg text-blue-800 border-b pb-1 mt-6">Pollutants</h3>
+                <p><strong>NO<sub>2</sub>:</strong> Best pollutant indicator of traffic pollution from tailpipes.
+                    Harmful gas.</p>
+                <p><strong>O<sub>3</sub> (Ozone):</strong> Harmful gas that requires other pollutants + sunlight to form
+                    (more complex relationships vs. other pollutants).</p>
+                <p><strong>PM<sub>2.5</sub>:</strong> Small particles that are associated with mortality and other
+                    adverse health outcomes. Generated by traffic (e.g., brake and tire wear) and formed from emitted
+                    NO<sub>2</sub>.</p>
+                <p class="text-xs text-gray-500 mt-4 border-t pt-2 text-center">Traffic demand modeling and air quality
+                    modeling performed by the REACH Center. Research reported in this web tool was supported by the
+                    National Institute of Environmental Health Sciences of the National Institutes of Health under award
+                    number 1-P20ES036775. This data has not been peer reviewed.</p>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/chroma-js/2.4.2/chroma.min.js"></script>
-
-    <!-- App Logic -->
     <script src="./app.js"></script>
 </body>
 
