@@ -81,27 +81,51 @@ document.addEventListener('DOMContentLoaded', () => {
             return scen.endsWith('t1') ? '$' : '$$';
         };
 
-        grid.innerHTML = SCENARIOS.map(scen => {
-            return `
-            <button class="scenario-btn flex flex-row items-center justify-between p-2 rounded-lg border-[3px] border-gray-200 bg-white hover:border-blue-400 hover:bg-blue-50 transition shadow-sm h-24" data-val="${scen}">
-                
-                <!-- Zoomed SVG contained beautifully inside an explicit box without covering the dollar sign -->
-                <div class="relative w-[76px] h-[76px] bg-gray-50 rounded border border-gray-100 flex-shrink-0 overflow-hidden">
-                    <svg viewBox="0 0 100 100" class="w-full h-full">
-                        <!-- Scale pushes bounds to edge, translated to center purely on DC -->
-                        <g transform="translate(50, 50) scale(3.5) translate(-55, -46)">
-                            ${svgBoundaries}
-                            ${getCordonSVG(scen)}
-                        </g>
-                    </svg>
-                </div>
-                
-                <!-- Separated distinct toll sign -->
-                <div class="flex-1 text-center pr-2 font-black text-green-700" style="font-size: 32px;">
-                    ${getTollText(scen)}
-                </div>
+        const getScenarioTitle = (prefix) => {
+            const types = {
+                'c0': 'Small cordon, I-395 exempt',
+                'c1': 'Small cordon, I-395 tolled',
+                'c2': 'Large cordon, I-395 tolled'
+            };
+            return types[prefix] || 'Scenario';
+        };
 
-            </button>
+        const types = ['c0', 'c1', 'c2'];
+        grid.innerHTML = types.map(type => {
+            const subScenarios = SCENARIOS.filter(s => s.startsWith(type));
+            const groupTitle = getScenarioTitle(type);
+
+            return `
+            <div class="space-y-2 mb-3">
+                <div class="text-[10px] font-bold uppercase tracking-widest text-gray-500 pl-1 border-b border-gray-100 pb-1">
+                    ${groupTitle}
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    ${subScenarios.map(scen => `
+                        <button class="scenario-btn flex flex-row items-center px-3 py-2.5 rounded-xl border-2 border-gray-200 bg-white hover:border-blue-400 hover:bg-blue-50 transition shadow-sm h-20 w-full text-left justify-start" data-val="${scen}">
+                            <!-- Map Thumbnail -->
+                            <div class="relative w-[56px] h-[56px] bg-slate-50 rounded-lg border border-slate-100 flex-shrink-0 overflow-hidden shadow-inner">
+                                <svg viewBox="0 0 100 100" class="w-full h-full">
+                                    <g transform="translate(50, 50) scale(3.8) translate(-55, -46)">
+                                        ${svgBoundaries}
+                                        ${getCordonSVG(scen)}
+                                    </g>
+                                </svg>
+                            </div>
+                            
+                            <!-- Price Module -->
+                            <div class="flex flex-col justify-center min-w-0 pl-4 w-full text-left">
+                                <span class="text-[10px] uppercase font-bold text-gray-400 tracking-widest leading-tight">
+                                    ${scen.endsWith('t1') ? 'Low' : 'High'}
+                                </span>
+                                <div class="text-green-700 font-black text-3xl leading-none mt-0.5">
+                                    ${scen.endsWith('t1') ? '$' : '$$'}
+                                </div>
+                            </div>
+                        </button>
+                    `).join('')}
+                </div>
+            </div>
             `;
         }).join('');
 
@@ -187,6 +211,38 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     document.getElementById('infoModalOverlay').addEventListener('click', (e) => {
         if (e.target === e.currentTarget) e.currentTarget.classList.add('hidden');
+    });
+
+    // FAQ Modal Logic
+    if (document.getElementById('faqBtn')) {
+        document.getElementById('faqBtn').addEventListener('click', () => {
+            document.getElementById('faqModalOverlay').classList.remove('hidden');
+        });
+        document.getElementById('closeFaqBtn').addEventListener('click', () => {
+            document.getElementById('faqModalOverlay').classList.add('hidden');
+        });
+        document.getElementById('faqModalOverlay').addEventListener('click', (e) => {
+            if (e.target === e.currentTarget) e.currentTarget.classList.add('hidden');
+        });
+    }
+
+    // --- Sidebar Info Button Toggles ---
+    const infoToggles = [
+        { btn: 'overviewInfoBtn', desc: 'overviewDesc' },
+        { btn: 'monthInfoBtn', desc: 'monthDesc' },
+        { btn: 'scenarioInfoBtn', desc: 'scenarioFullDesc' },
+        { btn: 'pollutantInfoBtn', desc: 'pollutantDesc' }
+    ];
+
+    infoToggles.forEach(toggle => {
+        const btnEl = document.getElementById(toggle.btn);
+        const descEl = document.getElementById(toggle.desc);
+        if (btnEl && descEl) {
+            btnEl.addEventListener('click', () => {
+                descEl.classList.toggle('hidden');
+                btnEl.classList.toggle('active');
+            });
+        }
     });
 
     // Sliders
@@ -339,6 +395,22 @@ document.addEventListener('DOMContentLoaded', () => {
         const limits = globalLimits[currentPollutant];
         if (!limits) return;
 
+        function getFeatureValue(feature) {
+            if (currentMonth !== 'Annual') {
+                return feature.properties[propertyKey];
+            }
+            let sum = 0, count = 0;
+            ['Feb', 'May', 'Aug', 'Nov'].forEach(m => {
+                const key = showDelta ? `${m}_${currentScenario}_${currentPollutant}_delta` : `${m}_baseline_${currentPollutant}`;
+                const val = feature.properties[key];
+                if (val !== null && !isNaN(val)) {
+                    sum += val;
+                    count++;
+                }
+            });
+            return count > 0 ? (sum / count) : null;
+        }
+
         let min, max, mid;
         if (!showDelta) {
             [min, max] = limits.baseline;
@@ -388,7 +460,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         geojsonLayer = L.geoJSON(geojsonData, {
             style: function (feature) {
-                let val = feature.properties[propertyKey];
+                let val = getFeatureValue(feature);
                 let colorHex = '#ccc';
                 if (val !== null && !isNaN(val)) {
                     if (val <= activeMin) colorHex = minColor;
@@ -406,7 +478,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const l = e.target;
             l.setStyle({ weight: 2, color: '#666', fillOpacity: 0.9, dashArray: '' });
 
-            const val = l.feature.properties[propertyKey];
+            const val = getFeatureValue(l.feature);
             infoPanel.classList.remove('hidden');
             infoContent.innerHTML = `
                 <div class="font-medium">${l.feature.properties.NAMELSAD || 'Tract ' + l.feature.properties.GEOID}</div>
