@@ -1,0 +1,38 @@
+/* Basic resets and custom styles */
+html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+}
+
+#map {
+    z-index: 1; 
+}
+
+/* Custom scrollbar for sidebar */
+aside::-webkit-scrollbar {
+    width: 6px;
+}
+aside::-webkit-scrollbar-track {
+    background: #f1f1f1; 
+}
+aside::-webkit-scrollbar-thumb {
+    background: #ccc; 
+    border-radius: 3px;
+}
+aside::-webkit-scrollbar-thumb:hover {
+    background: #aaa; 
+}
+
+/* Leaflet control overrides if needed */
+.leaflet-control-zoom {
+    border: none !important;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06) !important;
+}
+.leaflet-bar a {
+    color: #4b5563 !important; /* Gray-600 */
+}
+.leaflet-bar a:hover {
+    color: #1f2937 !important; /* Gray-800 */
+    background-color: #f9fafb !important; /* Gray-50 */
+}
