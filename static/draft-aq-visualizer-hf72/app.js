@@ -380,6 +380,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- Map Logic ---
     function updateMap() {
         if (!geojsonData) return;
+        updateVariablesPanel();
         if (geojsonLayer) map.removeLayer(geojsonLayer);
 
         let propertyKey;
@@ -399,23 +400,61 @@ document.addEventListener('DOMContentLoaded', () => {
             if (currentMonth !== 'Annual') {
                 return feature.properties[propertyKey];
             }
-            let sum = 0, count = 0;
+            let sum = 0;
+            const weights = { 'Feb': 28, 'May': 31, 'Aug': 31, 'Nov': 30 };
+            let totalWeight = 0;
             ['Feb', 'May', 'Aug', 'Nov'].forEach(m => {
                 const key = showDelta ? `${m}_${currentScenario}_${currentPollutant}_delta` : `${m}_baseline_${currentPollutant}`;
                 const val = feature.properties[key];
                 if (val !== null && !isNaN(val)) {
-                    sum += val;
-                    count++;
+                    sum += val * weights[m];
+                    totalWeight += weights[m];
                 }
             });
-            return count > 0 ? (sum / count) : null;
+            return totalWeight > 0 ? (sum / totalWeight) : null;
         }
+
+        function updateVariablesPanel() {
+            const panel = document.getElementById('variablesContent');
+            if (!panel) return;
+
+            // Month
+            const monthMap = { 'Feb': 'February', 'May': 'May', 'Aug': 'August', 'Nov': 'November', 'Annual': 'Annual Average' };
+            const monthTxt = monthMap[currentMonth] || currentMonth;
+
+            // Pollutant
+            const pollutantOpt = pollutantSelect.querySelector(`option[value="${currentPollutant}"]`);
+            const pollutantTxt = pollutantOpt ? pollutantOpt.textContent : currentPollutant;
+
+            // Scenario
+            let scenarioTxt = '';
+            if (currentScenario === 'baseline') {
+                scenarioTxt = 'Baseline (No road pricing)';
+            } else {
+                const prefix = currentScenario.substring(0, 2);
+                const types = {
+                    'c0': 'Small cordon, I-395 exempt',
+                    'c1': 'Small cordon, I-395 tolled',
+                    'c2': 'Large cordon, I-395 tolled'
+                };
+                const cordonTxt = types[prefix] || 'Scenario';
+                const tollTxt = currentScenario.endsWith('t1') ? 'Low Toll ($)' : 'High Toll ($$)';
+                scenarioTxt = `${cordonTxt} (${tollTxt})`;
+            }
+
+            panel.innerHTML = `
+                <li>${monthTxt}</li>
+                <li>${scenarioTxt}</li>
+                <li>${pollutantTxt}</li>
+            `;
+        }
+        updateVariablesPanel();
 
         let min, max, mid;
         if (!showDelta) {
             [min, max] = limits.baseline;
-            if (currentPollutant === 'NO2_MO' || currentPollutant === 'PM25_TOT_MO') min = 0;
-            min = Math.floor(min);
+            min = 0;
+
             max = Math.ceil(max);
             mid = (min + max) / 2;
         } else {
@@ -458,7 +497,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
         legendGradient.style.background = `linear-gradient(to right, ${minColor} 0%, ${minColor} ${minPercent}%, ${midColor} 50%, ${maxColor} ${maxPercent}%, ${maxColor} 100%)`;
 
+        const thresholdMarkers = document.getElementById('thresholdMarkers');
+        if (thresholdMarkers) {
+            thresholdMarkers.innerHTML = '';
+        }
+
         geojsonLayer = L.geoJSON(geojsonData, {
+            bubblingMouseEvents: false,
             style: function (feature) {
                 let val = getFeatureValue(feature);
                 let colorHex = '#ccc';
@@ -470,27 +515,172 @@ document.addEventListener('DOMContentLoaded', () => {
                 return { fillColor: colorHex, weight: 0, opacity: 1, color: 'transparent', fillOpacity: 0.7 };
             },
             onEachFeature: function (feature, layer) {
-                layer.on({ mouseover: highlightFeature, mouseout: resetHighlight });
+                layer.on({
+                    mouseover: (e) => { if (!isPanelFrozen) highlightFeature(e); },
+                    mouseout: (e) => { if (!isPanelFrozen) resetHighlight(e); },
+                    click: (e) => {
+                        if (isPanelFrozen) {
+                            isPanelFrozen = false;
+                            if (currentFrozenLayer) geojsonLayer.resetStyle(currentFrozenLayer);
+                            currentFrozenLayer = null;
+                            infoPanel.classList.add('hidden');
+                        } else {
+                            isPanelFrozen = true;
+                            currentFrozenLayer = layer;
+                            highlightFeature(e);
+                        }
+                    }
+                });
             }
         }).addTo(map);
+
+        let showOzoneExpl = false;
+        let isPanelFrozen = false;
+        let currentFrozenLayer = null;
+
+        map.off('click').on('click', () => {
+            if (isPanelFrozen) {
+                isPanelFrozen = false;
+                if (currentFrozenLayer) geojsonLayer.resetStyle(currentFrozenLayer);
+                currentFrozenLayer = null;
+                infoPanel.classList.add('hidden');
+            }
+        });
+
+        // Dedicated handler without bubbling to document
+        infoPanel.onclick = (e) => {
+            e.stopPropagation();
+            if (e.target.closest('#toggleOzoneExpl')) {
+                showOzoneExpl = true;
+                if (currentFrozenLayer) highlightFeature({target: currentFrozenLayer});
+                else if (isMouseOverPanel) { /* generic update */ }
+            }
+            if (e.target.closest('#hideOzoneExpl')) {
+                showOzoneExpl = false;
+                if (currentFrozenLayer) highlightFeature({target: currentFrozenLayer});
+            }
+        };
 
         function highlightFeature(e) {
             const l = e.target;
             l.setStyle({ weight: 2, color: '#666', fillOpacity: 0.9, dashArray: '' });
 
-            const val = getFeatureValue(l.feature);
+            const rawVal = getFeatureValue(l.feature);
+            const val = rawVal !== null ? parseFloat(rawVal) : null;
+            const unit = currentPollutant.includes('PM25') ? 'µg/m³' : 'ppb';
+            
+            let htmlStr = '';
+            if (val !== null && !isNaN(val)) {
+                if (showDelta) {
+                    let baselineVal = null;
+                    if (currentMonth !== 'Annual') {
+                        baselineVal = l.feature.properties[`${currentMonth}_baseline_${currentPollutant}`];
+                    } else {
+                        let sum = 0;
+                        const weights = { 'Feb': 28, 'May': 31, 'Aug': 31, 'Nov': 30 };
+                        let totalWeight = 0;
+                        ['Feb', 'May', 'Aug', 'Nov'].forEach(m => {
+                            const bVal = l.feature.properties[`${m}_baseline_${currentPollutant}`];
+                            if (bVal !== null && !isNaN(bVal)) { 
+                                sum += bVal * weights[m]; 
+                                totalWeight += weights[m]; 
+                            }
+                        });
+                        if (totalWeight > 0) baselineVal = sum / totalWeight;
+                    }
+
+                    const resultingStr = (baselineVal !== null) ? (baselineVal + val).toFixed(1) : null;
+                    
+                    // Logic for 0.0 neutral color
+                    let colorClass = 'text-gray-600';
+                    let action = 'negligeable concentration change';
+                    let sign = '';
+                    let displayValue = '';
+                    
+                    if (val > 0.05) {
+                        colorClass = 'text-red-600';
+                        action = 'increases by ';
+                        sign = '+';
+                        displayValue = `${Math.abs(val).toFixed(1)}${unit}`;
+                    } else if (val < -0.05) {
+                        colorClass = 'text-blue-600';
+                        action = 'decreases by ';
+                        sign = '-';
+                        displayValue = `${Math.abs(val).toFixed(1)}${unit}`;
+                    }
+
+                    let ozoneToggle = '';
+                    const isOzone = currentPollutant.toLowerCase().includes('o3');
+                    if (isOzone && val > 0.05) {
+                        if (showOzoneExpl) {
+                            ozoneToggle = `
+                                <div class="mt-2 p-2 bg-blue-50 border border-blue-100 rounded text-[10px] text-blue-800 leading-snug shadow-inner">
+                                    <div class="flex justify-between items-center mb-1 border-b border-blue-100 pb-1">
+                                        <span class="font-bold text-blue-900 uppercase tracking-tighter">Why does ozone increase here?</span>
+                                        <button id="hideOzoneExpl" class="text-blue-400 hover:text-blue-600 font-bold px-1">&times;</button>
+                                    </div>
+                                    Emission of nitrogen oxides (NO<sub>x</sub>, includes NO and NO<sub>2</sub>) can reduce ozone concentrations. This is because of an atmospheric process called <strong class="text-blue-900">"titration"</strong>, where freshly emitted NO<sub>x</sub> “consumes” ozone and thereby reduces ozone levels. Reducing traffic and thus NO<sub>x</sub> can thus lead the ozone concentration to increase.
+                                </div>
+                            `;
+                        } else {
+                            ozoneToggle = `
+                                <button id="toggleOzoneExpl" class="mt-2 w-full text-[10px] bg-blue-600 text-white px-2 py-1.5 rounded hover:bg-blue-700 transition flex items-center justify-between font-semibold shadow-sm border border-blue-500">
+                                    <span>Why does ozone increase here?</span>
+                                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                                </button>
+                            `;
+                        }
+                    }
+
+                    htmlStr = `
+                        <div class="text-base font-bold ${colorClass}">
+                            ${action}${sign}${displayValue}
+                        </div>
+                        ${resultingStr !== null ? `<div class="text-[11px] text-gray-600 mt-0.5">(total concentration: ${resultingStr}${unit})</div>` : ''}
+                        ${ozoneToggle}
+                        <div class="text-[10px] text-gray-500 mt-2 italic bg-gray-50 p-1.5 rounded border border-gray-100 leading-tight flex flex-col gap-1">
+                            <span>We are in the process of calculating how this change in air pollution influences health outcomes.</span>
+                            <a href="#aqStandardsTable" class="text-blue-600 hover:text-blue-800 underline font-semibold not-italic inline-block">View air quality standards</a>
+                        </div>
+                    `;
+                } else {
+                    htmlStr = `
+                        <div class="text-lg font-bold text-gray-900">
+                            ${val.toFixed(1)} <span class="text-xs font-normal text-gray-500">${unit}</span>
+                        </div>
+                    `;
+                }
+            } else {
+                htmlStr = `<div class="text-lg font-bold text-gray-900">N/A</div>`;
+            }
+
+            if (hideInfoTimer) clearTimeout(hideInfoTimer);
             infoPanel.classList.remove('hidden');
             infoContent.innerHTML = `
-                <div class="font-medium">${l.feature.properties.NAMELSAD || 'Tract ' + l.feature.properties.GEOID}</div>
-                <div class="text-lg font-bold ${showDelta ? (val > 0 ? 'text-red-600' : 'text-blue-600') : 'text-gray-900'}">
-                    ${val !== null && val !== undefined ? val.toFixed(1) : 'N/A'} <span class="text-xs font-normal text-gray-500">${currentPollutant.includes('PM25') ? 'µg/m³' : 'ppb'}</span>
-                </div>
+                <div class="font-medium border-b pb-1 mb-1">${l.feature.properties.NAMELSAD || 'Tract ' + l.feature.properties.GEOID}</div>
+                ${htmlStr}
             `;
         }
+
+        let hideInfoTimer = null;
+        let isMouseOverPanel = false;
+
+        infoPanel.onmouseenter = () => { isMouseOverPanel = true; if (hideInfoTimer) clearTimeout(hideInfoTimer); };
+        infoPanel.onmouseleave = () => { isMouseOverPanel = false; if (!isPanelFrozen) infoPanel.classList.add('hidden'); };
+
         function resetHighlight(e) {
             geojsonLayer.resetStyle(e.target);
-            infoPanel.classList.add('hidden');
+            if (hideInfoTimer) clearTimeout(hideInfoTimer);
+            hideInfoTimer = setTimeout(() => {
+                if (!isMouseOverPanel && !isPanelFrozen) {
+                    infoPanel.classList.add('hidden');
+                }
+            }, 300);
         }
+
+        // Ensure explanation hides when changing state
+        pollutantSelect.addEventListener('change', () => { showOzoneExpl = false; });
+        document.querySelectorAll('.month-btn').forEach(b => b.addEventListener('click', () => { showOzoneExpl = false; }));
 
         // Cordon stays on top
         if (cordonLayer) {

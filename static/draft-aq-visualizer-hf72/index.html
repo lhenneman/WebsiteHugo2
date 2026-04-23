@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/static/style.css">
+    <link rel="stylesheet" href="./style.css">
     <style>
         body {
             font-family: 'Inter', sans-serif;
@@ -121,7 +121,7 @@
 
     <header class="bg-white shadow-sm relative z-50 p-4 border-b border-gray-200">
         <div class="container mx-auto flex justify-between items-center">
-            <h1 class="text-xl font-semibold text-gray-800">Predicted air quality impacts from different road pricing designs in Washington, DC</h1>
+            <h1 class="text-xl font-semibold text-gray-800">Predicted air quality changes from different road pricing designs in Washington, DC</h1>
             <div class="flex gap-3">
                 <button id="faqBtn"
                     class="bg-blue-900 text-white px-3 py-1.5 rounded shadow hover:bg-blue-800 font-medium text-sm flex items-center border border-blue-800 transition-colors">
@@ -161,9 +161,14 @@
                         <h2 class="text-sm font-bold uppercase tracking-wide text-blue-100">Overview</h2>
                         <button id="overviewInfoBtn" class="info-btn !bg-blue-800 !text-white hover:!bg-blue-700">i</button>
                     </div>
-                    <p id="overviewDesc" class="text-xs leading-relaxed hidden text-blue-50">
-                        This interactive map allows you to explore how air quality is affected under different policy scenarios for road pricing in Washington DC. Road pricing policies introduce a toll on entering the city’s downtown area, and can reduce traffic and air pollution, while also raising funds for transportation. However, the policies’ impacts are different throughout the city. This map allows you to adjust variables such as seasons, policy design, and air pollutants to understand the complex ways that such policies could impact the DC area. Please see the “About this data” section for more details
-                    </p>
+                    <div id="overviewDesc" class="hidden space-y-2">
+                        <p class="text-xs leading-relaxed text-blue-50">
+                            This interactive map allows you to explore how air quality will change under different policy scenarios for road pricing in Washington DC. The cordon-based road pricing policies shown here introduce a toll on entering the city’s downtown area, and can reduce traffic and air pollution, while also raising funds for transportation. The policies’ impacts are expected to differ throughout the city. This map allows you to explore the influence of road policy designs for three pollutants in different seasons across the DC area. Please see the “About this data” section for more details.
+                        </p>
+                        <p class="text-[10px] leading-relaxed text-blue-200 italic border-t border-blue-800 pt-2">
+                            Note: This website is still being developed. Please share your feedback with us at lhennem@gmu.edu
+                        </p>
+                    </div>
                 </div>
 
                 <!-- Month Grid -->
@@ -172,7 +177,7 @@
                         <label class="block text-xs font-bold uppercase tracking-widest text-gray-500">Month</label>
                         <button id="monthInfoBtn" class="info-btn">i</button>
                     </div>
-                    <p id="monthDesc" class="text-xs text-gray-500 mb-3 leading-relaxed hidden">Why did we model air quality for these 4 months? Emissions from traffic interact with meteorological factors such as temperature or rainfall. This means that air pollution levels differ throughout the seasons, even if the amount of emissions stays the same.</p>
+                    <p id="monthDesc" class="text-xs text-gray-500 mb-3 leading-relaxed hidden">Why did we model air quality for these four months? Emissions from traffic change depending on the season and interact with meteorological factors such as temperature or rainfall. This means that air pollution levels differ throughout the seasons.</p>
                     <div class="grid grid-cols-5 gap-1.5 h-9">
                         <button class="month-btn active bg-blue-500 text-white rounded-md text-sm font-semibold transition"
                             data-val="Feb">Feb</button>
@@ -187,9 +192,9 @@
                             data-val="Nov">Nov</button>
                         <button
                             class="month-btn bg-gray-100 text-gray-700 hover:bg-gray-200 rounded-md text-sm font-semibold transition"
-                            data-val="Annual">Ann*</button>
+                            data-val="Annual">Annual</button>
                     </div>
-                    <p class="text-[10px] text-gray-400 mt-2 italic">* Annual average is computed as the mean of the four seasonal months.</p>
+                    <p class="text-[10px] text-gray-400 mt-2 italic">* The annual average is computed as the weighted mean of the four months (Feb, May, Aug, Nov), taking into account numbers of days in each month. These months were chosen to represent each season.</p>
                 </div>
 
                 <!-- Scenario Grid -->
@@ -199,7 +204,7 @@
                         <button id="scenarioInfoBtn" class="info-btn">i</button>
                     </div>
                     <div id="scenarioFullDesc" class="text-xs text-gray-500 mb-3 leading-relaxed hidden space-y-2">
-                        <p><strong>SCENARIOS:</strong> The baseline scenario shows the absolute concentration of pollutants without any road pricing policy. We developed 6 road pricing scenarios that differ in terms of the toll price, the size of the tolled area, and whether the interstate pass-through highway 395 is exempted from the toll. The graphs show how air quality changes with each policy design compared to the no-policy situation.</p>
+                        <p><strong>SCENARIOS:</strong> The baseline scenario shows the absolute concentration of pollutants in 2017 without any road pricing policies. We developed 6 scenarios that are different in terms of the toll price, the size of the tolled area, and whether the interstate pass-through highway 395 is exempted from the toll. When the user selects a scenario, the map displays how air quality will change compared to the situation without any road pricing policy.</p>
                         
                         <details class="group cursor-pointer border-b pb-1">
                             <summary class="font-semibold text-gray-800 flex justify-between items-center group-open:text-blue-700 select-none">
@@ -235,15 +240,15 @@
                         </details>
                     </div>
                     <button id="baselineBtn"
-                        class="scenario-btn active w-full mb-3 bg-blue-100 border-2 border-blue-500 text-blue-800 rounded p-2 text-sm font-medium text-center transition shadow-sm"
+                        class="scenario-btn active w-full mb-1 bg-blue-100 border-2 border-blue-500 text-blue-800 rounded p-2 text-sm font-medium text-center transition shadow-sm"
                         data-val="baseline">
                         Baseline (Absolute)
                     </button>
+                    <p class="mb-3 mt-1 text-xs text-center text-gray-500" id="scenarioDesc">Baseline scenario showing absolute
+                        concentrations.</p>
                     <div id="scenarioGrid" class="flex flex-col space-y-1">
                         <!-- SVGs injected via JS -->
                     </div>
-                    <p class="mt-2 text-xs text-gray-500" id="scenarioDesc">Baseline scenario showing absolute
-                        concentrations.</p>
                 </div>
 
                 <!-- Pollutant Selector -->
@@ -252,10 +257,12 @@
                         <label class="block text-xs font-bold uppercase tracking-widest text-gray-500">Pollutant</label>
                         <button id="pollutantInfoBtn" class="info-btn">i</button>
                     </div>
-                    <ul id="pollutantDesc" class="text-xs text-gray-500 mb-3 leading-relaxed hidden list-disc pl-4 space-y-1">
-                        <li><strong>NO<sub>2</sub>:</strong> Nitrogen dioxide (NO<sub>2</sub>) is a harmful gas that is a widely-used indicator of traffic pollution, because it is directly emitted from the tailpipes of vehicles. [...]</li>
-                        <li><strong>O<sub>3</sub>:</strong> Ozone (O<sub>3</sub>) is harmful gas that forms in more complex ways, as it requires other pollutants and sunlight to form. It is created by chemical reactions between gases such as nitrogen oxides and volatile organic compounds. Ozone contributes to smog and causes a range of health issues, such as []</li>
-                        <li><strong>PM<sub>2.5</sub>:</strong> Particulate matter with a diameter of less than 2.5 micrometres (PM<sub>2.5</sub>) consists of very fine inhalable particles. These can be generated directly by traffic through the wear of tires, and can also be formed indirectly through the NO<sub>2</sub> emitted by vehicles. These fine particles can penetrate deep into the lungs and can then enter the bloodstream, contributing to cardiovascular and respiratory health issues.</li>
+                    <ul id="pollutantDesc" class="text-xs text-gray-500 mb-3 leading-relaxed hidden list-disc pl-4 space-y-1 overflow-y-auto max-h-64">
+                        <li><strong>NO<sub>2</sub>:</strong> Nitrogen dioxide (NO<sub>2</sub>) is a harmful gas that is a widely-used indicator of traffic pollution, because it is directly emitted from the tailpipes of vehicles. (<a href="https://www.epa.gov/no2-pollution/basic-information-about-no2" target="_blank" class="text-blue-600 hover:underline">EPA</a>, Chen et al, 2024)</li>
+                        <li><strong>O<sub>3</sub>:</strong> Ozone (O<sub>3</sub>) is a harmful gas that forms in more complex ways, as it requires other pollutants and sunlight to form. It is created by chemical reactions between gases such as nitrogen oxides and volatile organic compounds. Ozone contributes to smog, especially on hot summer days. (<a href="https://www.epa.gov/sites/default/files/2015-06/documents/smog.pdf" target="_blank" class="text-blue-600 hover:underline">EPA</a>)</li>
+                        <li><strong>PM<sub>2.5</sub>:</strong> Particulate matter with a diameter of less than 2.5 micrometres (PM<sub>2.5</sub>) consists of very fine inhalable particles. These can be generated directly by traffic through the wear of tires, and can also be formed indirectly through the NO<sub>2</sub> emitted by vehicles. These fine particles can penetrate deep into the lungs and enter the bloodstream. (<a href="https://www.epa.gov/pm-pollution/health-and-environmental-effects-particulate-matter-pm" target="_blank" class="text-blue-600 hover:underline">EPA</a>)</li>
+                        <li class="mt-2 list-none font-bold text-gray-700">Health Effects</li>
+                        <li class="list-none">Exposure to NO<sub>2</sub>, O<sub>3</sub>, and/or PM<sub>2.5</sub> can contribute to a range of health effects, including development or worsening of asthma, respiratory symptoms (such as coughing and wheezing), cardiovascular diseases (such as strokes), and premature mortality. This can lead to an increase in emergency department visits and hospital admissions.</li>
                     </ul>
                     <select id="pollutantSelect"
                         class="w-full bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5">
@@ -276,10 +283,11 @@
                         <span>Max: <span id="sliderMaxReadout" class="font-mono text-red-600">-</span></span>
                     </div>
 
-                    <div class="relative w-full h-8 mb-2 border border-gray-300 rounded shadow-inner"
+                    <div class="relative w-full h-8 mt-6 mb-2 border border-gray-300 rounded shadow-inner"
                         style="background: #e5e7eb;">
                         <div id="legendGradient" class="absolute w-full h-full top-0 left-0 rounded"
                             style="background: transparent;"></div>
+                        <div id="thresholdMarkers" class="absolute w-full h-full top-0 left-0 pointer-events-none z-30"></div>
                         <div class="absolute w-full h-8 top-0">
                             <input type="range" id="scaleMinSlider" step="0.1"
                                 class="absolute top-0 left-0 w-full h-full bg-transparent m-0 p-0 z-10 custom-slider">
@@ -296,38 +304,40 @@
                 </div>
 
     <!-- Air Quality Standards comparison -->
-                <div class="mt-4 pt-4 border-t border-gray-200">
-                    <h3 class="text-sm font-medium text-gray-700 mb-2">Air Quality Standards</h3>
-                    <div class="text-[10px] text-gray-500 space-y-2">
-                        <div class="grid grid-cols-3 gap-1 font-bold border-b pb-1">
+                <div id="aqStandardsTable" class="mt-4 p-4 bg-blue-50 border border-blue-100 rounded-xl shadow-sm">
+                    <h3 class="text-sm font-bold text-blue-900 mb-2 flex items-center gap-1.5">
+                        <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        Air Quality Standards
+                    </h3>
+                    <div class="text-[10px] text-blue-900 space-y-2">
+                        <div class="grid grid-cols-3 gap-1 font-bold border-b border-blue-200 pb-1">
                             <span>Pollutant</span>
                             <span>NAAQS</span>
                             <span>WHO AQG 2021</span>
                         </div>
-                        <div class="grid grid-cols-3 gap-1 py-1 border-b border-gray-50">
+                        <div class="grid grid-cols-3 gap-1 py-1 border-b border-blue-100">
                             <span>NO<sub>2</sub></span>
-                            <span>TBD</span>
-                            <span>10 µg/m³</span>
+                            <span>53 ppb</span>
+                            <span>5.3 ppb</span>
                         </div>
-                        <div class="grid grid-cols-3 gap-1 py-1 border-b border-gray-50">
+                        <div class="grid grid-cols-3 gap-1 py-1 border-b border-blue-100">
                             <span>PM<sub>2.5</sub></span>
-                            <span>TBD</span>
+                            <span>9 µg/m³</span>
                             <span>5 µg/m³</span>
                         </div>
                         <div class="grid grid-cols-3 gap-1 py-1">
                             <span>O<sub>3</sub></span>
-                            <span>TBD</span>
-                            <span>100 µg/m³</span>
+                            <span>70 ppb</span>
+                            <span>30.6 ppb</span>
                         </div>
                         <details class="mt-2 group cursor-pointer">
-                            <summary class="text-[9px] font-bold text-blue-600 hover:text-blue-800 select-none flex items-center gap-1">
+                            <summary class="text-[9px] font-bold text-blue-700 hover:text-blue-800 select-none flex items-center gap-1">
                                 <span>What are NAAQS and WHO AQG?</span>
                                 <span class="transition group-open:-rotate-180 text-[8px]">&#9662;</span>
                             </summary>
-                            <div class="mt-1.5 text-[9px] text-gray-500 space-y-1.5 leading-relaxed border-t border-gray-100 pt-1.5">
-                                <p>The National Ambient Air Quality Standards (NAAQS) are set by the US Environmental Protection Agency (EPA) under the Clean Air Act. The <strong>primary NAAQS</strong> set the legal national federal US-based standard to protect the health of "sensitive" populations (people with asthma, children, the elderly). All areas across the US are required to share information that helps determine whether they succeed in meeting these standards (<em>attainment areas</em>) or not (<em>nonattainment areas</em>).</p>
+                            <div class="mt-1.5 text-[9px] text-blue-800 space-y-1.5 leading-relaxed border-t border-blue-200 pt-1.5">
+                                <p>The National Ambient Air Quality Standards (NAAQS) are set by the US Environmental Protection Agency (EPA) for criteria pollutants under the Clean Air Act. The <strong>primary NAAQS</strong> set the legal national federal US-based standard to protect the health of "sensitive" populations (people with asthma, children, the elderly). All areas across the US are required to share information that helps determine whether they succeed in meeting these standards (<em>attainment areas</em>) or not (<em>nonattainment areas</em>). For NO<sub>2</sub> and PM<sub>2.5</sub>, we display annual rather than short-term NAAQS. For O<sub>3</sub>, we display the annual-fourth highest daily maximum 8-hour concentration, averaged over 3 years.</p>
                                 <p>The <strong>WHO 2021 Air Quality Guidelines (AQG)</strong> are globally guiding principles from the WHO. Values shown are from the 2021 WHO AQG, which are significantly stricter than the NAAQS.</p>
-                                <p class="italic text-[8px] text-gray-400">* NAAQS values currently under review (TBD).</p>
                             </div>
                         </details>
                     </div>
@@ -335,14 +345,9 @@
 
             </div>
             <div class="mt-auto p-4 bg-slate-50 text-[9px] text-gray-400 border-t border-gray-100 space-y-2">
-                <p id="lastUpdated" class="font-medium">Last updated: 13 April 2026</p>
+                <p id="lastUpdated" class="font-medium">Last updated: 21 April 2026</p>
                 <p class="leading-relaxed">
-                    Traffic demand modeling and air quality modeling performed by the REACH Center. Research reported in
-                    this web tool was supported by the National Institute of Environmental Health Sciences of the National
-                    Institutes of Health under award number 1-P20ES036775. This data has not been peer reviewed.
-                </p>
-                <p class="italic leading-tight text-blue-800">
-                    * Note: "Annual" data is computed as the mathematical mean of the four seasonal months (Feb, May, Aug, Nov).
+                    Traffic demand modeling and air quality modeling performed by the REACH Center. Research reported in this web tool was supported by the National Institute of Environmental Health Sciences of the National Institutes of Health under award number 1-P20ES036775. This data has not been peer reviewed.
                 </p>
                 <div class="mt-4 pt-4 border-t border-gray-200">
                     <p class="font-bold text-gray-700">Would you like to know more?</p>
@@ -355,10 +360,23 @@
         <main class="flex-1 relative">
             <div id="map" class="h-full w-full bg-gray-100"></div>
 
-            <div id="infoPanel"
-                class="absolute top-4 right-4 bg-white/90 backdrop-blur-sm p-4 rounded-lg shadow-lg border border-gray-200 max-w-xs hidden z-[1000]">
-                <h4 class="font-semibold text-gray-900 border-b pb-1 mb-2" id="infoTitle">Tract Info</h4>
-                <div id="infoContent" class="text-sm text-gray-700 space-y-1"></div>
+            <div class="absolute top-4 right-4 flex flex-col space-y-4 z-[1000] pointer-events-none items-end">
+                <!-- Shared Variables Panel (Permanent) -->
+                <div id="variablesPanel"
+                    class="bg-white/90 backdrop-blur-sm p-4 rounded-lg shadow-lg border border-gray-200 w-80 pointer-events-auto">
+                    <h4 class="text-xs font-bold uppercase tracking-widest text-gray-500 border-b pb-1 mb-2">Selections</h4>
+                    <ul class="list-disc pl-4 space-y-1 text-xs text-gray-700 font-medium" id="variablesContent">
+                        <!-- Injected via JS -->
+                    </ul>
+                </div>
+
+                <!-- Tract Info Panel (Dynamic) -->
+                <div id="infoPanel"
+                    class="bg-white/90 backdrop-blur-sm p-4 rounded-lg shadow-lg border border-gray-200 w-80 hidden pointer-events-auto">
+                    <h4 class="font-semibold text-gray-900 border-b pb-1 mb-2" id="infoTitle">Tract Info</h4>
+                    <div id="infoContent" class="text-sm text-gray-700 space-y-1"></div>
+                </div>
+
             </div>
         </main>
     </div>
@@ -380,8 +398,8 @@
                         <span class="transition group-open:-rotate-180">&#9662;</span>
                     </summary>
                     <div class="mt-3 space-y-4">
-                        <p class="text-sm">We created this interactive map in a process with several steps that build onto each other. In collaboration with community partner Greater Greater Washington, we selected six potential road pricing scenarios based on realistic  We modelled how these different designs would influence traffic patterns, how this would impact emissions from cars, and how this would impact air quality. The interactive map shows these findings on air quality and allows you to adjust variables such as seasons, policy design, and air pollutants. The next step will be estimating how these changes in air quality will influence health across the DC area.</p>
-                        <img src="./img/project_overview.png" alt="Project Overview Flowchart" class="w-full rounded-lg shadow-md border border-gray-100">
+                        <p class="text-sm">We created this interactive map in a process with several steps that build onto each other. In collaboration with community partner Greater Greater Washington, we selected six potential cordon-based road pricing scenarios. These scenarios are the same as those considered in the DC Decongestion Pricing Study Report, which was commissioned by the District Department of Transportation in 2019. We modelled how these different designs would influence traffic patterns, how this would impact emissions from cars, and in turn, how this would impact air quality. The interactive map shows these findings on air quality and allows you to adjust variables such as seasons, policy design, and air pollutants. The next step will be estimating how these changes in air quality will influence health outcomes across the DC area.</p>
+                        <img src="static/img/project_overview.png" alt="Project Overview Flowchart" class="w-full rounded-lg shadow-md border border-gray-100">
                         <p class="text-sm italic">The interactive map is based on data for the year 2017, as this was the latest year for which all required data was available, which was not affected by COVID-19 pandemic measures.</p>
                     </div>
                 </details>
@@ -392,7 +410,7 @@
                         What is the CMAQ-Model?
                         <span class="transition group-open:-rotate-180">&#9662;</span>
                     </summary>
-                    <p class="mt-3 text-sm text-gray-700">The Community Multiscale Air Quality (CMAQ) Modelling System is a tool developed by the US Environmental Protection Agency. This model combines complex simulations of meteorology, emissions, and chemical processes in the atmosphere to predict air quality. The model can predict the concentrations of several pollutants, including particulate matter, ozone, and several air toxics.</p>
+                    <p class="mt-3 text-sm text-gray-700">The Community Multiscale Air Quality (CMAQ) Modelling System is a tool developed by the US Environmental Protection Agency. This model uses simulations of meteorology, emissions, and chemical processes in the atmosphere to predict air quality. The model can predict the concentrations of several pollutants, including particulate matter, ozone, and several air toxics.</p>
                 </details>
 
                 <!-- Data definitions -->
@@ -416,12 +434,12 @@
 
                             <div class="border-l-4 border-slate-600 pl-4 py-1">
                                 <h4 class="font-bold text-gray-900">Small cordon with toll on I-395</h4>
-                                <p>A small cordon in downtown DC. Passenger vehicles on Interstate-395 are also paying the toll.</p>
+                                <p>A small cordon in downtown DC. Passenger vehicles on Interstate-395 are required to pay the toll.</p>
                             </div>
 
                             <div class="border-l-4 border-slate-800 pl-4 py-1">
                                 <h4 class="font-bold text-gray-900">Large cordon</h4>
-                                <p>A larger pricing cordon covering most of DC. Vehicles on the Interstate-395 highway are also paying the toll.</p>
+                                <p>A larger pricing cordon covering most of DC. Vehicles on the Interstate-395 highway are required to also pay the toll.</p>
                             </div>
                         </div>
 
@@ -528,6 +546,7 @@
                             <span class="transition group-open:-rotate-180">&#9662;</span>
                         </summary>
                         <p class="text-sm mt-2 text-gray-700">In 1975, Singapore was the first city that implemented a congestion pricing policy. It successfully reduced traffic jams and improved air quality, which inspired similar policies in several other cities across the world. This includes London’s congestion charge zone (2003), Stockholm's congestion tax (2007), Gothenburg’s congestion tax (2013), and Milan’s Area C (2012). In 2025, New York City was the first North American city to implement a congestion pricing policy with its Central Business District Tolling Program (2025).</p>
+                    </details>
                     <details class="mt-3 group cursor-pointer border-b pb-2">
                         <summary class="font-semibold text-gray-900 flex justify-between items-center group-open:text-blue-700 select-none">
                             How is road pricing enforced and how are fees collected?
@@ -553,13 +572,7 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
                         </svg>
                         Road Pricing in DC
-                    </h3>                    <details class="mt-3 group cursor-pointer border-b pb-2">
-                        <summary class="font-semibold text-gray-900 flex justify-between items-center group-open:text-blue-700 select-none">
-                            How concerning are the levels of air pollution in Washington, DC?
-                            <span class="transition group-open:-rotate-180">&#9662;</span>
-                        </summary>
-                        <p class="text-sm mt-2 text-gray-700">The DC area attains the National Ambient Air Quality Standards (NAAQS) from the Clean Air Act. However, research increasingly shows that even below these standards, exposure to air pollution is associated with a higher risk of air pollution-related mortality. Moreover, the average for the entire area hides the fact that in some places within DC, the concentration of pollutants is much higher, particularly during rush hour.</p>
-                    </details>
+                    </h3>
 
                     <details class="mt-3 group cursor-pointer border-b pb-2">
                         <summary class="font-semibold text-gray-900 flex justify-between items-center group-open:text-blue-700 select-none">
@@ -571,34 +584,34 @@
 
                     <details class="mt-3 group cursor-pointer border-b pb-2">
                         <summary class="font-semibold text-gray-900 flex justify-between items-center group-open:text-blue-700 select-none">
-                            How could road pricing improve public transportation?
+                            How could road pricing improve urban transportation?
                             <span class="transition group-open:-rotate-180">&#9662;</span>
                         </summary>
-                        <p class="text-sm mt-2 text-gray-700">The additional revenue from the tolls allows the DC government to invest more in buses, metro, and bicycle infrastructure.</p>
+                        <p class="text-sm mt-2 text-gray-700">Road pricing leads to higher traffic speeds, less time spent commuting, and fewer crashes with pedestrians. The additional revenue collected through the tolls would allow the DC government to increase investment in buses, metro, and bicycle infrastructure. The first evaluation of New York City’s road pricing policy showed promising results. Vehicle speeds increased by 4.6%, and the city was on track to generate $500M net revenue in its first year (<a href="https://www.mta.info/document/195631" target="_blank" class="text-blue-600 hover:underline">MTA Report</a>). This revenue will be used to fund, for example, upgraded subway lines and new railcars and buses (<a href="https://www.mta.info/agency/bridges-and-tunnels/congestion-relief-zone/better-transit" target="_blank" class="text-blue-600 hover:underline">MTA Transit</a>).</p>
                     </details>
 
                     <details class="mt-3 group cursor-pointer border-b pb-2">
                         <summary class="font-semibold text-gray-900 flex justify-between items-center group-open:text-blue-700 select-none">
-                            How would road pricing affect people's access in the DC area?
+                            How would road pricing change people's access in the DC area?
                             <span class="transition group-open:-rotate-180">&#9662;</span>
                         </summary>
-                        <p class="text-sm mt-2 text-gray-700">This is an important point to consider, because the tolls could indeed be a financial burden for people who drive into the city for work and live in places with no access to public transport. A DC-focused study examines a scenario where the revenue from the tolls is invested in making buses free for DC residents and improving bus service on key roads. This study predicts that while traveling would be 2% less convenient for average residents in the metro areas, it would improve access by 0.6% for the average DC resident and 10% for DC residents with low-income.</p>
+                        <p class="text-sm mt-2 text-gray-700">Pricing could pose a financial burden for people who might need to drive into the proposed cordon area because they do not have access to public transport. In DC, vehicle ownership is much lower among people with extremely low income (40%) compared to people with middle (64%) or upper income (85%). The District Department of Transportation (DDOT) provides a range of supportive services for people with low-income, ranging from 24/7 bus service, pre-tax benefits for transit, and transit discounts. A DC-focused study examines what would happen if revenue from the road pricing were invested in making buses free for DC residents and improving bus service on key roads (<a href="https://ggwash.org/view/101933/ggwash-picks-2025-road-pricing-could-make-transportation-in-the-district-more-equitable" target="_blank" class="text-blue-600 hover:underline">GGWash</a>). While traveling would be 2% less convenient for average residents in the metro area, it would improve access by 0.6% for the average DC resident and 10% for DC residents with low-income.</p>
                     </details>
 
                     <details class="mt-3 group cursor-pointer border-b pb-2">
                         <summary class="font-semibold text-gray-900 flex justify-between items-center group-open:text-blue-700 select-none">
-                            What is the deal with the 2021 District Department of Transportation report?
+                            What happened with the District Department of Transportation (DDOT) congestion pricing study?
                             <span class="transition group-open:-rotate-180">&#9662;</span>
                         </summary>
-                        <p class="text-sm mt-2 text-gray-700">In 2019, mayor Muriel Bowser commissioned a study on road pricing by the District Department of Transportation (DDOT). This report was completed in 2021, but was only released in 2026. Our community partner Greater Greater Washington was involved in suing the District after the report was not released despite Freedom of Information Act requests. The report was finally published in 2026 alongside a letter from Mayor Bowser arguing that the study has methodological flaws given that it used pre-pandemic data.</p>
+                        <p class="text-sm mt-2 text-gray-700">In 2019, mayor Muriel Bowser commissioned a study on road pricing through the District Department of Transportation (DDOT). This report was completed in 2021, but was only released in 2026 (<a href="https://ddot.dc.gov/release/dc-decongestion-pricing-study-letter-and-study" target="_blank" class="text-blue-600 hover:underline">DDOT Release</a>). Our community partner Greater Greater Washington was involved in litigation against the District, as the report was not released by its required publication date (2020). Alongside the report, Mayor Bowser published a letter in March 2026 and argued that the study has methodological flaws as it uses pre-pandemic data (<a href="https://ddot.dc.gov/sites/default/files/dc/sites/ddot/release_content/attachments/Mayor%20Bowser%27s%20Letter%20on%20Congrestion%20Pricing%20Study.pdf" target="_blank" class="text-blue-600 hover:underline">Mayor's Letter</a>). The data used is indeed from 2017, as this report was intended to be the first step leading up to more research. And indeed, more people in the DMV area have compressed schedules or work from home (14.7% in 2025) than before the pandemic (10.2% in 2016) (<a href="https://www.mwcog.org/documents/2026/01/21/state-of-the-commute-survey-report--carsharing-featured-publications-state-of-the-commute-telework-travel-surveys/" target="_blank" class="text-blue-600 hover:underline">MWCOG Commute Survey</a>). While 56.7% of commuters drove alone in 2025 compared to 61.0% in 2016, this proportion is still very high for a city with as extensive public transit infrastructure as Washington, DC.</p>
                     </details>
                     
                     <details class="mt-3 group cursor-pointer border-b pb-2">
                         <summary class="font-semibold text-gray-900 flex justify-between items-center group-open:text-blue-700 select-none">
-                            How would road pricing affect business downtown?
+                            How would road pricing affect businesses downtown?
                             <span class="transition group-open:-rotate-180">&#9662;</span>
                         </summary>
-                        <p class="text-sm mt-2 text-gray-700">Road pricing could reduce the number of people who travel to downtown DC, and thereby reduce income for businesses downtown, which is a major concern. However, this can be offset through target reinvestment in public transit. A study examining the new congestion pricing policy in New York City finds that the policy increased speeds on the roads by 11% and had little-to-no effect on transactions at shops and restaurants.</p>
+                        <p class="text-sm mt-2 text-gray-700">Road pricing could reduce the number of people who travel to downtown DC, and thereby reduce income for businesses downtown, which is a concern in Mayor Muriel Bowser’s response to the DDOT congestion pricing report. The connection between fewer trips by car and reducing business activity is tenuous and hard to prove. A study examining the new congestion pricing policy in New York City finds that the policy had little-to-no effect on transactions at shops and restaurants (<a href="https://www.nber.org/papers/w33584" target="_blank" class="text-blue-600 hover:underline">NBER</a>).</p>
                     </details>
                 </div>
 
@@ -632,23 +645,23 @@
                             Is data from 2017 still accurate?
                             <span class="transition group-open:-rotate-180">&#9662;</span>
                         </summary>
-                        <p class="text-sm mt-2 text-gray-700">This research project started in 2025, and traffic and emissions data from 2017 were selected as the most representative data available at the time. The COVID-19 pandemic and isolation measures strongly disrupted normal commuting patterns. While more people are still working from home than before, the situation is returning to pre-pandemic trends. As of 2025, 55% of people in the DMV area commute to work by driving alone. We are working on an updated analysis to compare how applicable the 2017 data are for 2026.</p>
+                        <p class="text-sm mt-2 text-gray-700">This research project started in 2025, and traffic and emissions data from 2017 were selected as the most representative data available at the time. The COVID-19 pandemic and isolation measures strongly disrupted normal commuting patterns. While more people are working from home than before, the situation is now returning to pre-pandemic trends. In 2025, the rate of commuters driving alone went back up to 56.7%, close to the pre-pandemic rate of 61.0% in 2016 (<a href="https://www.mwcog.org/documents/2026/01/21/state-of-the-commute-survey-report--carsharing-featured-publications-state-of-the-commute-telework-travel-surveys/" target="_blank" class="text-blue-600 hover:underline">MWCOG Commute Survey</a>). We will conduct an additional analysis to check how applicable the 2017 data are today.</p>
                     </details>
 
                     <details class="mt-3 group cursor-pointer border-b pb-2">
                         <summary class="font-semibold text-gray-900 flex justify-between items-center group-open:text-blue-700 select-none">
-                            Why do ozone levels increase downtown with the introduction of road pricing?
+                            Why do ozone levels increase in the tolled area with the introduction of road pricing?
                             <span class="transition group-open:-rotate-180">&#9662;</span>
                         </summary>
-                        <p class="text-sm mt-2 text-gray-700">Small reductions in nitrogen oxides (NOx), which are emitted by cars, increase ozone. This is because of a process called "titration", where freshly emitted NOx consumes ozone.</p>
+                        <p class="text-sm mt-2 text-gray-700">Emission of nitrogen oxides (NO<sub>x</sub>, includes NO and NO<sub>2</sub>) can reduce ozone concentrations. This is because of an atmospheric process called "titration", where freshly emitted NO<sub>x</sub> “consumes” ozone and thereby reduces ozone levels. This means that if NO<sub>x</sub> decreases, ozone concentrations increase.</p>
                     </details>
 
                     <details class="mt-3 group cursor-pointer border-b pb-2">
                         <summary class="font-semibold text-gray-900 flex justify-between items-center group-open:text-blue-700 select-none">
-                            How meaningful are our findings with small reductions in the concentrations of pollution (e.g. a 0.4ppb concentration reduction of nitrogen)?
+                            How meaningful are our findings with small reductions in the concentrations of pollution (e.g. a 0.4ppb concentration reduction of nitrogen dioxide)?
                             <span class="transition group-open:-rotate-180">&#9662;</span>
                         </summary>
-                        <p class="text-sm mt-2 text-gray-700">[tbd]</p>
+                        <p class="text-sm mt-2 text-gray-700">The number of people exposed to air pollution in the DC area is high, which means that even small reductions in air pollution can contribute to significant improvements in population health. We are currently working on quantifying how this policy impacts health, focusing on how many cases of mortality, asthma development, and emergency department visits can be attributed to air pollution.</p>
                     </details>
 
                     <details class="mt-3 group cursor-pointer border-b pb-2">
@@ -668,6 +681,14 @@
                         </svg>
                         Air Pollution
                     </h3>
+                    
+                    <details class="mt-3 group cursor-pointer border-b pb-2">
+                        <summary class="font-semibold text-gray-900 flex justify-between items-center group-open:text-blue-700 select-none">
+                            Which pollutant seems to be most harmful in DC and why is road pricing important even if some air quality standards are met?
+                            <span class="transition group-open:-rotate-180">&#9662;</span>
+                        </summary>
+                        <p class="text-sm mt-2 text-gray-700">The DC area attains the National Ambient Air Quality Standards (NAAQS) from the Clean Air Act. However, research increasingly shows that even below these standards, exposure to air pollution is associated with a higher risk of air pollution-related mortality (<a href="https://jamanetwork.com/journals/jama/fullarticle/2667069" target="_blank" class="text-blue-600 hover:underline">JAMA, 2017</a>). Moreover, the average for the entire area hides the fact that in some places within DC, the concentration of pollutants is much higher and more worrisome, particularly during rush hour and the summer months.</p>
+                    </details>
 
                     <details class="mt-3 group cursor-pointer border-b pb-2">
                         <summary class="font-semibold text-gray-900 flex justify-between items-center group-open:text-blue-700 select-none">
@@ -675,8 +696,8 @@
                             <span class="transition group-open:-rotate-180">&#9662;</span>
                         </summary>
                         <div class="text-sm mt-2 text-gray-700 space-y-3">
-                            <p>The <strong>NAAQS</strong> are determined by the US Environmental Protection Agency (EPA), which is obligatory under the Clean Air Act. The EPA reviews these guidelines every 5 years to set a legal national standard to protect public health across the US. These standards can be subject to pressure from political administrations and businesses. For example, the EPA tightened the regulations for PM<sub>2.5</sub> from 12 µg/m³ to 9 µg/m³ during the 2024 review. However, new guidelines were set to be revised in 2025 under EPA Administrator Zeldin's announcement of "31 Historic Actions to Power the Great American Comeback." The reason for revising the guidelines so soon is that the stricter regulations "shut down opportunities for American manufacturing and small businesses" (<a href="https://www.epa.gov/newsreleases/epa-launches-biggest-deregulatory-action-us-history" target="_blank" class="text-blue-600 hover:underline">EPA announcement</a>).</p>
-                            <p>The <strong>WHO 2021 Air Quality Guidelines (AQG)</strong> are much stricter than the NAAQS. They do not consider the feasibility of the standards but reflect the increasing amount of academic evidence that there is no level of exposure to air pollution which is safe for human health (<a href="https://www.bmj.com/content/374/bmj.n1904.short" target="_blank" class="text-blue-600 hover:underline">BMJ, 2021</a>).</p>
+                            <p>The <strong>NAAQS</strong> are determined by the US Environmental Protection Agency (EPA), which is obligatory under the Clean Air Act. The EPA reviews these guidelines every 5 years to set a legal national standard to protect public health across the US. These standards can be subject to pressure from political administrations and businesses. For example, the EPA tightened the regulations for PM<sub>2.5</sub> from 12 µg/m³ to 9 µg/m³ during the 2024 review. However, new guidelines were set to be revised in 2025 under EPA Administrator Zeldin's announcement of "31 Historic Actions to Power the Great American Comeback." The reason for revising the guidelines earlier than the regular cycle is that stricter regulations "shut down opportunities for American manufacturing and small businesses" (<a href="https://www.epa.gov/newsreleases/epa-launches-biggest-deregulatory-action-us-history" target="_blank" class="text-blue-600 hover:underline">EPA announcement</a>).</p>
+                            <p>The <strong>WHO 2021 Air Quality Guidelines (AQG)</strong> tend to be stricter than the NAAQS. The WHO guidelines do not consider the feasibility of the standards but reflect the increasing amount of academic evidence that there is no level of exposure to air pollution which is safe for human health (<a href="https://www.bmj.com/content/374/bmj.n1904.short" target="_blank" class="text-blue-600 hover:underline">BMJ, 2021</a>).</p>
                         </div>
                     </details>
 
@@ -685,7 +706,7 @@
                             Why are there different air pollution thresholds for different time durations?
                             <span class="transition group-open:-rotate-180">&#9662;</span>
                         </summary>
-                        <p class="text-sm mt-2 text-gray-700">These thresholds take into account different health risks that are associated with different durations of exposure. Short-term standards (1-hour or 24-hour) are supposed to prevent high peak exposures, which can trigger acute crises such as asthma attacks that require emergency department visits. Long-term standards aim to address the lower chronic levels of exposure that build up over time.</p>
+                        <p class="text-sm mt-2 text-gray-700">These thresholds take into account different health risks that are associated with different durations of exposure. Short-term standards (1-hour or 24-hour) are supposed to prevent high peak exposures, which can trigger acute crises such as asthma attacks that require emergency department visits. Long-term standards aim to address the lower chronic levels of exposure that build up over time, contributing to premature mortality and morbidity.</p>
                     </details>
 
                     <details class="mt-3 group cursor-pointer border-b pb-2">
@@ -693,7 +714,7 @@
                             Why is ground-level ozone harmful while ozone high in the atmosphere protects us?
                             <span class="transition group-open:-rotate-180">&#9662;</span>
                         </summary>
-                        <p class="text-sm mt-2 text-gray-700">Ozone can be "good" and "bad" for human health. This depends on whether it is part of a protective layer high up in the atmosphere or if it is in the air close to the ground, which we breathe in. Ozone forms a protective layer that absorbs solar UV radiation at 15–35 km height in the atmosphere. However, at ground level, ozone is a harmful pollutant which contributes to smog and causes a range of respiratory health issues.</p>
+                        <p class="text-sm mt-2 text-gray-700">Ozone can be "good" and "bad" for humans. This depends on whether it is part of a protective layer high up in the atmosphere or if it is in the air close to the ground, which we breathe in. Ozone forms a protective layer that absorbs solar UV radiation at 15–35 km height in the atmosphere. However, at ground level, ozone is a harmful pollutant which contributes to smog and causes a range of respiratory health issues.</p>
                     </details>
                 </div>
             </div>
@@ -701,7 +722,7 @@
     </div>
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/chroma-js/2.4.2/chroma.min.js"></script>
-    <script src="./app.js"></script>
+    <script src="static/app.js?v=2.0"></script>
 </body>
 
 </html>
