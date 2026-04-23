@@ -593,7 +593,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     
                     // Logic for 0.0 neutral color
                     let colorClass = 'text-gray-600';
-                    let action = 'negligeable concentration change';
+                    let action = val > 0 ? 'small concentration increase' : (val < 0 ? 'small concentration decrease' : 'no concentration change');
                     let sign = '';
                     let displayValue = '';
                     
