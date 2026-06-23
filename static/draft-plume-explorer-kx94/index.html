@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gaussian Plume Air Quality Explorer</title>
+  <meta name="description" content="Interactive educational tool for visualizing Gaussian plume dispersion from point-source emitters. Explore how wind speed, direction, stability class, stack height, and emission rates affect air quality." />
+
+  <!-- Leaflet CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- ─── HEADER ─────────────────────────────────────────────── -->
+  <header class="app-header">
+    <div class="header-left">
+      <div class="logo-icon" aria-hidden="true">
+        <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="20" cy="20" r="20" fill="url(#logoGrad)"/>
+          <ellipse cx="20" cy="26" rx="11" ry="5" fill="rgba(255,255,255,0.15)"/>
+          <path d="M20 26 Q16 18 13 10" stroke="white" stroke-width="2" stroke-linecap="round" opacity="0.6"/>
+          <path d="M20 26 Q20 15 20 8" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
+          <path d="M20 26 Q24 18 27 10" stroke="white" stroke-width="2" stroke-linecap="round" opacity="0.6"/>
+          <defs>
+            <linearGradient id="logoGrad" x1="0" y1="0" x2="40" y2="40">
+              <stop offset="0%" stop-color="#6366f1"/>
+              <stop offset="100%" stop-color="#a855f7"/>
+            </linearGradient>
+          </defs>
+        </svg>
+      </div>
+      <div>
+        <h1 class="app-title">Gaussian Plume Explorer</h1>
+        <p class="app-subtitle">Air Quality Visualization &amp; Education Tool</p>
+      </div>
+    </div>
+    <div class="header-right">
+      <button id="btn-help" class="btn-icon" aria-label="Help and information" title="About this tool">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+      </button>
+      <button id="btn-reset" class="btn-secondary" title="Reset all parameters to defaults">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-4.7"/></svg>
+        Reset
+      </button>
+    </div>
+  </header>
+
+  <!-- ─── MAIN LAYOUT ───────────────────────────────────────── -->
+  <main class="app-layout">
+
+    <!-- ─── CONTROL PANEL ─────────────────────────────────── -->
+    <aside class="control-panel" id="control-panel">
+
+      <div class="panel-section">
+        <h2 class="section-title">
+          <span class="section-icon">📍</span>
+          Facility Location
+        </h2>
+        <p class="section-hint">Click on the map to place the emission source.</p>
+        <div class="location-display" id="location-display">
+          <span class="loc-label">Lat:</span><span class="loc-value" id="loc-lat">–</span>
+          <span class="loc-label">Lon:</span><span class="loc-value" id="loc-lon">–</span>
+        </div>
+      </div>
+
+      <div class="panel-divider"></div>
+
+      <!-- Emissions -->
+      <div class="panel-section">
+        <h2 class="section-title">
+          <span class="section-icon">🏭</span>
+          Emissions
+        </h2>
+
+        <div class="control-group" id="cg-emission-rate">
+          <label class="control-label" for="emission-rate">
+            Emission Rate (Q)
+            <span class="control-value" id="val-emission-rate">3.0 g/s</span>
+          </label>
+          <input type="range" id="emission-rate" class="slider" min="0.1" max="50" step="0.1" value="3.0"
+            aria-describedby="desc-emission-rate" />
+          <div class="slider-bounds"><span>0.1 g/s</span><span>50 g/s</span></div>
+          <p class="control-desc" id="desc-emission-rate">Total mass of pollutant emitted per second from the stack.</p>
+        </div>
+
+        <div class="control-group" id="cg-stack-height">
+          <label class="control-label" for="stack-height">
+            Effective Stack Height (H)
+            <span class="control-value" id="val-stack-height">75 m</span>
+          </label>
+          <input type="range" id="stack-height" class="slider" min="10" max="250" step="5" value="75"
+            aria-describedby="desc-stack-height" />
+          <div class="slider-bounds"><span>10 m</span><span>250 m</span></div>
+          <p class="control-desc" id="desc-stack-height">Physical stack height plus buoyancy-driven plume rise (Briggs formula).</p>
+        </div>
+      </div>
+
+      <div class="panel-divider"></div>
+
+      <!-- Meteorology -->
+      <div class="panel-section">
+        <h2 class="section-title">
+          <span class="section-icon">🌬️</span>
+          Meteorology
+        </h2>
+
+        <div class="control-group" id="cg-wind-speed">
+          <label class="control-label" for="wind-speed">
+            Wind Speed (u)
+            <span class="control-value" id="val-wind-speed">3.0 m/s</span>
+          </label>
+          <input type="range" id="wind-speed" class="slider" min="0.5" max="15" step="0.5" value="3"
+            aria-describedby="desc-wind-speed" />
+          <div class="slider-bounds"><span>0.5 m/s</span><span>15 m/s</span></div>
+          <p class="control-desc" id="desc-wind-speed">Higher speeds dilute the plume but also carry it farther downwind.</p>
+        </div>
+
+        <div class="control-group" id="cg-wind-direction">
+          <label class="control-label" for="wind-direction">
+            Wind Direction
+            <span class="control-value" id="val-wind-direction">220° (SW)</span>
+          </label>
+          <div class="wind-rose-container">
+            <canvas id="wind-rose" width="80" height="80" aria-label="Wind rose showing wind direction"></canvas>
+            <input type="range" id="wind-direction" class="slider" min="0" max="359" step="1" value="220"
+              aria-describedby="desc-wind-direction" />
+          </div>
+          <div class="slider-bounds"><span>0° (N)</span><span>359°</span></div>
+          <p class="control-desc" id="desc-wind-direction">Direction wind is blowing FROM. Plume travels in the opposite direction.</p>
+        </div>
+
+        <div class="control-group" id="cg-stability-class">
+          <label class="control-label" for="stability-class">
+            Pasquill Stability Class
+            <span class="control-value stability-badge" id="val-stability-class">C</span>
+          </label>
+          <div class="stability-selector" id="stability-selector" role="radiogroup" aria-label="Atmospheric stability class">
+            <button class="stab-btn" data-class="A" title="A – Extremely Unstable" aria-pressed="false">A</button>
+            <button class="stab-btn" data-class="B" title="B – Moderately Unstable" aria-pressed="false">B</button>
+            <button class="stab-btn active" data-class="C" title="C – Slightly Unstable" aria-pressed="true">C</button>
+            <button class="stab-btn" data-class="D" title="D – Neutral" aria-pressed="false">D</button>
+            <button class="stab-btn" data-class="E" title="E – Slightly Stable" aria-pressed="false">E</button>
+            <button class="stab-btn" data-class="F" title="F – Moderately Stable" aria-pressed="false">F</button>
+          </div>
+          <p class="control-desc stability-desc" id="desc-stability-class">
+            <span class="stab-desc-text" id="stab-desc"></span>
+          </p>
+        </div>
+      </div>
+
+      <div class="panel-divider"></div>
+
+      <!-- Display Options -->
+      <div class="panel-section">
+        <h2 class="section-title">
+          <span class="section-icon">🎨</span>
+          Display
+        </h2>
+
+        <div class="control-group">
+          <label class="control-label" for="pollutant-select">
+            Pollutant shown
+            <span class="control-value" id="val-pollutant">NOₓ</span>
+          </label>
+          <div class="select-wrapper">
+            <select id="pollutant-select" class="custom-select">
+              <option value="nox">NOₓ (primary tracer)</option>
+              <option value="no2">NO₂ (estimated)</option>
+              <option value="pm25">PM₂.₅ (primary)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="control-group">
+          <label class="control-label" for="opacity-slider">
+            Plume overlay opacity
+            <span class="control-value" id="val-opacity">70%</span>
+          </label>
+          <input type="range" id="opacity-slider" class="slider" min="10" max="100" step="5" value="70" />
+        </div>
+
+        <div class="control-group">
+          <label class="toggle-label" for="toggle-contours">
+            <span>Show concentration contours</span>
+            <div class="toggle-switch">
+              <input type="checkbox" id="toggle-contours" checked />
+              <span class="toggle-track"></span>
+            </div>
+          </label>
+        </div>
+
+      </div>
+
+      <!-- Status / compute indicator -->
+      <div class="compute-status" id="compute-status">
+        <div class="status-dot" id="status-dot"></div>
+        <span id="status-text">Place a source on the map to begin</span>
+      </div>
+
+    </aside>
+
+    <!-- ─── MAP + LEGEND AREA ──────────────────────────────── -->
+    <section class="map-section">
+      <div id="map" role="application" aria-label="Interactive dispersion map. Click to place emission source."></div>
+
+      <!-- Contour concentration labels (stacked above legend) -->
+      <div id="contour-labels" class="contour-labels" aria-label="Contour concentration levels"></div>
+
+      <!-- Floating legend -->
+      <div class="map-legend" id="map-legend" aria-label="Concentration color scale">
+        <div class="legend-title" id="legend-title">NOₓ Concentration</div>
+        <canvas id="legend-canvas" width="200" height="20" aria-hidden="true"></canvas>
+        <div class="legend-labels">
+          <span id="legend-min">0</span>
+          <span id="legend-mid"></span>
+          <span id="legend-max"></span>
+        </div>
+        <div class="legend-unit" id="legend-unit">μg/m³ (at 2 m breathing level)</div>
+      </div>
+
+      <!-- Stats card -->
+      <div class="stats-card" id="stats-card">
+        <div class="stats-row">
+          <div class="stat-item" id="stat-max">
+            <span class="stat-label">Peak Conc.</span>
+            <span class="stat-value" id="stat-max-val">–</span>
+          </div>
+          <div class="stat-item" id="stat-dist">
+            <span class="stat-label">Peak Distance</span>
+            <span class="stat-value" id="stat-dist-val">–</span>
+          </div>
+          <div class="stat-item" id="stat-width">
+            <span class="stat-label">Plume Width (e⁻¹)</span>
+            <span class="stat-value" id="stat-width-val">–</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Click hint -->
+      <div class="click-hint" id="click-hint">
+        <div class="hint-content">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          <span>Click anywhere on the map to place your emission source</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─── INFO PANEL ─────────────────────────────────────── -->
+    <aside class="info-panel" id="info-panel">
+
+      <!-- Equation card -->
+      <div class="info-card eq-card">
+        <h3 class="info-card-title">Gaussian Plume Model</h3>
+
+        <!-- Main equation -->
+        <div class="eq-display">
+          <div class="eq-math-structure">
+            <!-- Row 1: LHS -->
+            <div class="eq-row-1">
+              <div class="eq-lhs"><var>C</var>(<var>x</var>, <var>y</var>, <var>z</var>) =</div>
+            </div>
+
+            <!-- Row 2: Q fraction * exp(-y^2 / 2sigma_y^2) -->
+            <div class="eq-row-2">
+              <div class="eq-frac">
+                <div class="eq-num"><var>Q</var></div>
+                <div class="eq-den">2<var>π</var> · <var>ū</var> · <var>σ<sub>y</sub></var> · <var>σ<sub>z</sub></var></div>
+              </div>
+              <span class="eq-op">·</span>
+              <span class="eq-func">exp</span><span class="eq-paren">(</span><span class="eq-inner">−<span class="eq-inline-frac"><span class="eq-if-num"><var>y</var><sup>2</sup></span><span class="eq-if-den">2<var>σ<sub>y</sub></var><sup>2</sup></span></span></span><span class="eq-paren">)</span>
+            </div>
+
+            <!-- Row 3: brackets [ exp(-(z-H)^2 / 2sigma_z^2) + exp(-(z+H)^2 / 2sigma_z^2) ] -->
+            <div class="eq-row-3">
+              <span class="eq-op">·</span>
+              <span class="eq-bracket">[</span>
+              <span class="eq-func">exp</span><span class="eq-paren">(</span><span class="eq-inner">−<span class="eq-inline-frac"><span class="eq-if-num">(<var>z</var> − <var>H</var>)<sup>2</sup></span><span class="eq-if-den">2<var>σ<sub>z</sub></var><sup>2</sup></span></span></span><span class="eq-paren">)</span>
+              <span class="eq-plus">+</span>
+              <span class="eq-func">exp</span><span class="eq-paren">(</span><span class="eq-inner">−<span class="eq-inline-frac"><span class="eq-if-num">(<var>z</var> + <var>H</var>)<sup>2</sup></span><span class="eq-if-den">2<var>σ<sub>z</sub></var><sup>2</sup></span></span></span><span class="eq-paren">)</span>
+              <span class="eq-bracket">]</span>
+            </div>
+          </div><!-- /eq-math-structure -->
+        </div><!-- /eq-display -->
+
+        <!-- Variable legend -->
+        <div class="eq-legend">
+          <div class="eq-row"><span class="eq-sym"><var>C</var></span><span class="eq-def">Pollutant concentration (μg/m³)</span></div>
+          <div class="eq-row"><span class="eq-sym"><var>Q</var></span><span class="eq-def">Emission rate (g/s)</span></div>
+          <div class="eq-row"><span class="eq-sym"><var>ū</var></span><span class="eq-def">Mean wind speed (m/s) at stack height</span></div>
+          <div class="eq-row"><span class="eq-sym"><var>H</var></span><span class="eq-def">Effective stack height (m)</span></div>
+          <div class="eq-row"><span class="eq-sym"><var>z</var></span><span class="eq-def">Receptor height (fixed at 2 m, breathing level)</span></div>
+          <div class="eq-row"><span class="eq-sym"><var>σ<sub>y</sub></var>, <var>σ<sub>z</sub></var></span><span class="eq-def">P-G dispersion coefficients (m)</span></div>
+        </div>
+        <p class="info-card-desc" style="margin-top:12px; font-size:11px; opacity:0.8; line-height:1.4;">Note: A receptor height (<var>z</var>) of 2 m is used to represent human exposure breathing level, incorporating full plume reflection from the ground.</p>
+      </div>
+
+      <!-- Sigma table -->
+      <div class="info-card">
+        <h3 class="info-card-title">Dispersion Coefficients (σ)</h3>
+        <p class="info-card-desc">Pasquill-Gifford parameterization. Values increase with instability (A=most unstable, F=most stable).</p>
+        <div class="sigma-visual" id="sigma-visual">
+          <canvas id="sigma-chart" width="240" height="140"></canvas>
+        </div>
+      </div>
+
+      <!-- Current params summary -->
+      <div class="info-card">
+        <h3 class="info-card-title">Current Parameters</h3>
+        <table class="params-table" id="params-table">
+          <tbody>
+            <tr><td>Q (emission)</td><td id="pt-q">–</td></tr>
+            <tr><td>H (stack height)</td><td id="pt-h">–</td></tr>
+            <tr><td>u (wind speed)</td><td id="pt-u">–</td></tr>
+            <tr><td>Wind from</td><td id="pt-wd">–</td></tr>
+            <tr><td>Stability</td><td id="pt-stab">–</td></tr>
+            <tr><td>z (receptor height)</td><td>2 m</td></tr>
+            <tr><td>σ<sub>y</sub> at 1 km</td><td id="pt-sy">–</td></tr>
+            <tr><td>σ<sub>z</sub> at 1 km</td><td id="pt-sz">–</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- NAAQS reference -->
+      <div class="info-card naaqs-card">
+        <h3 class="info-card-title">NAAQS Reference</h3>
+        <table class="naaqs-table">
+          <thead><tr><th>Pollutant</th><th>Standard</th><th>Avg.</th></tr></thead>
+          <tbody>
+            <tr><td>NO₂</td><td>100 ppb</td><td>1-hr</td></tr>
+            <tr><td>NO₂</td><td>53 ppb</td><td>Annual</td></tr>
+            <tr><td>PM₂.₅</td><td>35 μg/m³</td><td>24-hr</td></tr>
+            <tr><td>PM₂.₅</td><td>9 μg/m³</td><td>Annual</td></tr>
+          </tbody>
+        </table>
+        <p class="info-card-desc" style="margin-top:8px">This tool models a single meteorological scenario. Regulatory analysis requires full annual met data.</p>
+      </div>
+
+    </aside>
+  </main>
+
+  <!-- ─── HELP MODAL ─────────────────────────────────────── -->
+  <div class="modal-backdrop" id="help-modal" role="dialog" aria-modal="true" aria-labelledby="modal-title" hidden>
+    <div class="modal-panel">
+      <div class="modal-header">
+        <h2 id="modal-title">About This Tool</h2>
+        <button class="modal-close" id="modal-close" aria-label="Close help dialog">&times;</button>
+      </div>
+      <div class="modal-body">
+        <h3>What is the Gaussian Plume Model?</h3>
+        <p>The Gaussian plume model is one of the most widely used analytical models in air quality. It describes how a continuous emission from a point source disperses downwind, assuming the concentration profile across and vertically follows a Gaussian (normal) distribution.</p>
+
+        <h3>How to Use This Tool</h3>
+        <ol>
+          <li><strong>Place the source:</strong> Click anywhere on the map to position your emission facility.</li>
+          <li><strong>Adjust parameters:</strong> Use the sliders and controls on the left to change meteorological and emission conditions.</li>
+          <li><strong>Observe the plume:</strong> The color overlay updates in real time showing estimated concentrations at a 2 m breathing height.</li>
+          <li><strong>Explore scenarios:</strong> Try contrasting stability classes A vs F, or calm vs windy conditions.</li>
+        </ol>
+
+        <h3>Atmospheric Stability Classes</h3>
+        <table class="modal-table">
+          <tr><th>Class</th><th>Description</th><th>Conditions</th></tr>
+          <tr><td>A</td><td>Extremely Unstable</td><td>Strong solar radiation, light winds (&lt;3 m/s)</td></tr>
+          <tr><td>B</td><td>Moderately Unstable</td><td>Moderate solar radiation</td></tr>
+          <tr><td>C</td><td>Slightly Unstable</td><td>Slight solar radiation</td></tr>
+          <tr><td>D</td><td>Neutral</td><td>Overcast or strong wind (&gt;6 m/s)</td></tr>
+          <tr><td>E</td><td>Slightly Stable</td><td>Slight nighttime cooling</td></tr>
+          <tr><td>F</td><td>Moderately Stable</td><td>Clear sky, light winds at night</td></tr>
+        </table>
+
+        <h3>Limitations</h3>
+        <p>This is a simplified educational model. Real-world air quality assessment uses AERMOD (EPA regulatory model) which accounts for terrain, building downwash, hourly meteorological data, and more complex chemistry. Concentrations shown are illustrative, not regulatory.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Leaflet JS -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="plume.js"></script>
+</body>
+</html>
