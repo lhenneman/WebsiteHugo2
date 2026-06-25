@@ -102,10 +102,10 @@ const state = {
   showContours: true,
 
   pollutantFactor() {
-    return { nox: 1.0, no2: 0.45, pm25: 0.015 }[this.pollutant];
+    return { nox: 1.0, no2: 0.45, pm25: 1.0 }[this.pollutant];
   },
   pollutantLabel() {
-    return { nox: 'NOₓ', no2: 'NO₂ (est.)', pm25: 'PM₂.₅ (primary est.)' }[this.pollutant];
+    return { nox: 'NOₓ', no2: 'NO₂ (est.)', pm25: 'PM₂.₅ (primary)' }[this.pollutant];
   },
 };
 
