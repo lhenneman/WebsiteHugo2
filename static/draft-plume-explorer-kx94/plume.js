@@ -111,7 +111,7 @@ const state = {
 
 /* ── Exponential slider helpers for emission rate ───────────── */
 // Maps slider position [0,1] ↔ Q [0.01, 100] g/s logarithmically.
-const Q_MIN = 0.01, Q_MAX = 100;
+const Q_MIN = 0.0001, Q_MAX = 100;
 function sliderToQ(t) {
   // t ∈ [0,1] → Q ∈ [Q_MIN, Q_MAX]
   return Q_MIN * Math.pow(Q_MAX / Q_MIN, t);
@@ -417,7 +417,7 @@ const PlumeLayer = L.Layer.extend({
     // ── Effective emission and colour scale ───────────────────────
     const effectiveQ  = state.Q * state.pollutantFactor();
     const { maxConc, peakX } = computeCenterlineMax(effectiveQ);
-    if (maxConc < 0.01) {
+    if (maxConc < 1e-6) {
       setStatus('done', 'No significant concentrations');
       return;
     }
@@ -819,7 +819,7 @@ function updateLegend(maxConc) {
 
 function updateParamsTable() {
   const { sigmaY, sigmaZ } = computeSigmas(1000, state.stab);
-  const qFmt = state.Q < 0.1 ? state.Q.toFixed(3) : state.Q < 10 ? state.Q.toFixed(2) : state.Q.toFixed(1);
+  const qFmt = state.Q < 0.001 ? state.Q.toExponential(2) : state.Q < 0.1 ? state.Q.toFixed(4) : state.Q < 10 ? state.Q.toFixed(2) : state.Q.toFixed(1);
   document.getElementById('pt-q').textContent    = `${qFmt} g/s`;
   document.getElementById('pt-h').textContent    = `${state.H} m`;
   document.getElementById('pt-u').textContent    = `${state.windSpeed.toFixed(1)} m/s`;
@@ -1070,7 +1070,8 @@ function updateSliderFill(el) {
   const numIn   = document.getElementById('emission-rate-num');
 
   function formatQ(q) {
-    if (q < 0.1) return q.toFixed(3);
+    if (q < 0.001) return q.toExponential(2);
+    if (q < 0.1) return q.toFixed(4);
     if (q < 10)  return q.toFixed(2);
     return q.toFixed(1);
   }
