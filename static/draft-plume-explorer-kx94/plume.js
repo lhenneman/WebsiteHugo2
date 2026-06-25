@@ -102,10 +102,10 @@ const state = {
   showContours: true,
 
   pollutantFactor() {
-    return { nox: 1.0, no2: 0.45, pm25: 1.0 }[this.pollutant];
+    return { nox: 1.0, pm25: 1.0 }[this.pollutant];
   },
   pollutantLabel() {
-    return { nox: 'NOₓ', no2: 'NO₂ (est.)', pm25: 'PM₂.₅ (primary)' }[this.pollutant];
+    return { nox: 'NOₓ', pm25: 'PM₂.₅ (primary)' }[this.pollutant];
   },
 };
 
@@ -160,9 +160,8 @@ const EMISSION_PRESETS = [
     label: 'Small diesel generator (100 kW)',
     // Tier 4 Final limits (40 CFR Part 1039 / NSPS Subpart IIII), 100 kW / 134 hp
     // NOₓ: 0.298 g/hp-hr × 134 hp ÷ 3600 = 0.0111 g/s
-    // NO₂: 5 % primary fraction → 0.000556 g/s
     // PM₂.₅: 0.0149 g/hp-hr × 134 hp ÷ 3600 = 0.000555 g/s
-    q: { nox: 0.0111, no2: 0.000556, pm25: 0.000555 },
+    q: { nox: 0.0111, pm25: 0.000555 },
     cite: '40 CFR Part 1039 / NSPS Subpart IIII Tier 4 Final; 100 kW / 134 hp genset',
   },
   {
@@ -170,9 +169,8 @@ const EMISSION_PRESETS = [
     // AP-42 §3.4 Table 3.4-1 (≥600 hp, uncontrolled): NOₓ EF 0.024 lb/hp-hr, PM₂.₅ 0.0007 lb/hp-hr
     // 2 MW = 2,682 hp; conversion: EF × hp × 453.592 / 3600 = EF × hp × 0.1260
     // NOₓ: 0.024 × 2682 × 0.1260 = 8.11 g/s
-    // NO₂: 5 % primary (AP-42 §3.4) → 0.406 g/s
     // PM₂.₅: 0.0007 × 2682 × 0.1260 = 0.237 g/s
-    q: { nox: 8.11, no2: 0.406, pm25: 0.237 },
+    q: { nox: 8.11, pm25: 0.237 },
     cite: 'AP-42 §3.4 Table 3.4-1 (≥600 hp, uncontrolled); 2 MW / 2,682 hp unit',
   },
   // ── Natural gas turbines ──────────────────────────────────────────────────
@@ -182,9 +180,8 @@ const EMISSION_PRESETS = [
     // 100 MW_e, HR 10,000 BTU/kWh → heat input 1,000 MMBtu/hr
     // Conversion: EF × MMBtu/hr × 0.1260 = g/s
     // NOₓ: 0.036 × 1000 × 0.1260 = 4.54 g/s
-    // NO₂: 5 % primary → 0.227 g/s
     // PM₂.₅: 0.0066 × 1000 × 0.1260 = 0.832 g/s
-    q: { nox: 4.54, no2: 0.227, pm25: 0.832 },
+    q: { nox: 4.54, pm25: 0.832 },
     cite: 'AP-42 §3.1 Table 3.1-2a (natural gas, DLN); 100 MW_e, HR 10,000 BTU/kWh',
   },
   {
@@ -192,9 +189,8 @@ const EMISSION_PRESETS = [
     // AP-42 §3.1: same DLN EFs apply when no supplementary duct burner
     // 400 MW_e, HR 6,800 BTU/kWh → heat input 2,720 MMBtu/hr
     // NOₓ: 0.036 × 2720 × 0.1260 = 12.34 g/s
-    // NO₂: 5 % → 0.617 g/s
     // PM₂.₅: 0.0066 × 2720 × 0.1260 = 2.26 g/s
-    q: { nox: 12.34, no2: 0.617, pm25: 2.26 },
+    q: { nox: 12.34, pm25: 2.26 },
     cite: 'AP-42 §3.1 Table 3.1-2a (natural gas, DLN); 400 MW_e CCGT, HR 6,800 BTU/kWh',
   },
   // ── Coal-fired boilers ────────────────────────────────────────────────────
@@ -204,27 +200,25 @@ const EMISSION_PRESETS = [
     // = 0.875 lb/MMBtu; with 90% SCR → 0.0875 lb/MMBtu
     // 500 MW_e, HR 9,800 BTU/kWh → heat input 4,900 MMBtu/hr
     // NOₓ: 0.0875 × 4900 × 0.1260 = 54.0 g/s
-    // NO₂: 5 % primary → 2.70 g/s
     // PM₂.₅ (AP-42 §1.1 Table 1.1-5/6, fabric filter): 0.006 lb/MMBtu
     // PM₂.₅: 0.006 × 4900 × 0.1260 = 3.70 g/s
-    q: { nox: 54.0, no2: 2.70, pm25: 3.70 },
+    q: { nox: 54.0, pm25: 3.70 },
     cite: 'AP-42 §1.1 Tables 1.1-3 & 1.1-5/6 (wall-fired PC, SCR, fabric filter); 500 MW_e',
   },
   {
     label: 'Super-critical coal boiler (800 MW)',
     // Same AP-42 EFs; supercritical HR 8,800 BTU/kWh → heat input 7,040 MMBtu/hr
     // NOₓ: 0.0875 × 7040 × 0.1260 = 77.6 g/s
-    // NO₂: 5 % → 3.88 g/s
     // PM₂.₅: 0.006 × 7040 × 0.1260 = 5.32 g/s
-    q: { nox: 77.6, no2: 3.88, pm25: 5.32 },
+    q: { nox: 77.6, pm25: 5.32 },
     cite: 'AP-42 §1.1 Tables 1.1-3 & 1.1-5/6 (wall-fired PC, SCR, fabric filter); 800 MW_e SC',
   },
 ];
 
 /** Rebuild the preset <select> options to reflect the active pollutant. */
 function updateEmissionPresets() {
-  const pol = state.pollutant;                                // 'nox' | 'no2' | 'pm25'
-  const sym = { nox: 'NOₓ', no2: 'NO₂', pm25: 'PM₂.₅' }[pol];
+  const pol = state.pollutant;                                // 'nox' | 'pm25'
+  const sym = { nox: 'NOₓ', pm25: 'PM₂.₅' }[pol];
   const sel = document.getElementById('emission-preset');
   if (!sel) return;
 
@@ -1215,7 +1209,7 @@ document.getElementById('stab-desc').textContent = STABILITY_DESCRIPTIONS[state.
 document.getElementById('pollutant-select').addEventListener('change', function () {
   state.pollutant = this.value;
   document.getElementById('val-pollutant').textContent =
-    { nox: 'NOₓ', no2: 'NO₂', pm25: 'PM₂.₅' }[this.value];
+    { nox: 'NOₓ', pm25: 'PM₂.₅' }[this.value];
   updateEmissionPresets();   // re-scale preset values and labels
   scheduleRedraw();
 });
