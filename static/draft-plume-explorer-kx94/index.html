@@ -78,23 +78,41 @@
         </h2>
 
         <div class="control-group" id="cg-emission-rate">
-          <label class="control-label" for="emission-rate">
+          <label class="control-label" for="emission-rate-num">
             Emission Rate (Q)
-            <span class="control-value" id="val-emission-rate">3.0 g/s</span>
+            <span class="control-value-group">
+              <input type="number" id="emission-rate-num" class="control-value-input" min="0.01" max="100" step="any" value="3.0" aria-label="Emission rate in grams per second" />
+              <span class="control-value-unit" id="unit-emission-rate">g/s</span>
+            </span>
           </label>
-          <input type="range" id="emission-rate" class="slider" min="0.1" max="50" step="0.1" value="3.0"
-            aria-describedby="desc-emission-rate" />
-          <div class="slider-bounds"><span>0.1 g/s</span><span>50 g/s</span></div>
-          <p class="control-desc" id="desc-emission-rate">Total mass of pollutant emitted per second from the stack.</p>
+          <div class="slider-with-input">
+            <input type="range" id="emission-rate" class="slider" min="0" max="1" step="0.001" value="0.372"
+              aria-describedby="desc-emission-rate" />
+          </div>
+          <div class="slider-bounds"><span>0.01 g/s</span><span>100 g/s</span></div>
+
+          <div class="preset-row">
+            <label class="preset-label" for="emission-preset">Typical sources:</label>
+            <select id="emission-preset" class="preset-select" aria-label="Select a typical emission source">
+              <option value="">— select —</option>
+              <!-- Options populated dynamically by updateEmissionPresets() in plume.js -->
+            </select>
+          </div>
+          <p class="control-desc" id="desc-emission-rate">Total mass of pollutant emitted per second. Slider is exponential. <a class="cite-link" href="#" id="cite-link" title="See citation">Source ¹</a></p>
         </div>
 
         <div class="control-group" id="cg-stack-height">
-          <label class="control-label" for="stack-height">
+          <label class="control-label" for="stack-height-num">
             Effective Stack Height (H)
-            <span class="control-value" id="val-stack-height">75 m</span>
+            <span class="control-value-group">
+              <input type="number" id="stack-height-num" class="control-value-input" min="10" max="250" step="1" value="75" aria-label="Effective stack height in meters" />
+              <span class="control-value-unit">m</span>
+            </span>
           </label>
-          <input type="range" id="stack-height" class="slider" min="10" max="250" step="5" value="75"
-            aria-describedby="desc-stack-height" />
+          <div class="slider-with-input">
+            <input type="range" id="stack-height" class="slider" min="10" max="250" step="5" value="75"
+              aria-describedby="desc-stack-height" />
+          </div>
           <div class="slider-bounds"><span>10 m</span><span>250 m</span></div>
           <p class="control-desc" id="desc-stack-height">Physical stack height plus buoyancy-driven plume rise (Briggs formula).</p>
         </div>
@@ -110,27 +128,32 @@
         </h2>
 
         <div class="control-group" id="cg-wind-speed">
-          <label class="control-label" for="wind-speed">
+          <label class="control-label" for="wind-speed-num">
             Wind Speed (u)
-            <span class="control-value" id="val-wind-speed">3.0 m/s</span>
+            <span class="control-value-group">
+              <input type="number" id="wind-speed-num" class="control-value-input" min="0.5" max="15" step="0.1" value="3.0" aria-label="Wind speed in meters per second" />
+              <span class="control-value-unit">m/s</span>
+            </span>
           </label>
-          <input type="range" id="wind-speed" class="slider" min="0.5" max="15" step="0.5" value="3"
-            aria-describedby="desc-wind-speed" />
+          <div class="slider-with-input">
+            <input type="range" id="wind-speed" class="slider" min="0.5" max="15" step="0.5" value="3"
+              aria-describedby="desc-wind-speed" />
+          </div>
           <div class="slider-bounds"><span>0.5 m/s</span><span>15 m/s</span></div>
           <p class="control-desc" id="desc-wind-speed">Higher speeds dilute the plume but also carry it farther downwind.</p>
         </div>
 
         <div class="control-group" id="cg-wind-direction">
-          <label class="control-label" for="wind-direction">
+          <label class="control-label" for="wind-direction-num">
             Wind Direction
-            <span class="control-value" id="val-wind-direction">220° (SW)</span>
+            <span class="control-value-group">
+              <input type="number" id="wind-direction-num" class="control-value-input" min="0" max="359" step="1" value="220" aria-label="Wind direction in degrees" />
+              <span class="control-value-unit" id="unit-wind-direction">° (SW)</span>
+            </span>
           </label>
-          <div class="wind-rose-container">
+          <div class="wind-rose-container" style="justify-content: center;">
             <canvas id="wind-rose" width="80" height="80" aria-label="Wind rose showing wind direction"></canvas>
-            <input type="range" id="wind-direction" class="slider" min="0" max="359" step="1" value="220"
-              aria-describedby="desc-wind-direction" />
           </div>
-          <div class="slider-bounds"><span>0° (N)</span><span>359°</span></div>
           <p class="control-desc" id="desc-wind-direction">Direction wind is blowing FROM. Plume travels in the opposite direction.</p>
         </div>
 
@@ -338,6 +361,16 @@
           </tbody>
         </table>
         <p class="info-card-desc" style="margin-top:8px">This tool models a single meteorological scenario. Regulatory analysis requires full annual met data.</p>
+      </div>
+
+      <!-- Citation card -->
+      <div class="info-card" id="citation-card">
+        <h3 class="info-card-title">¹ Typical Emission Rate Sources</h3>
+        <p class="info-card-desc">Emission rate estimates are approximate and represent NOₓ from the stack under typical operating conditions:</p>
+        <ul class="citation-list">
+          <li>U.S. EPA. <em>AP-42: Compilation of Air Emissions Factors</em>, Ch. 3 (Stationary Internal Combustion Sources) &amp; Ch. 1 (External Combustion Sources). EPA, 2023. <a href="https://www.epa.gov/air-emissions-factors-and-quantification/ap-42-compilation-air-emissions-factors" class="cite-link" target="_blank" rel="noopener">epa.gov/ap-42</a></li>
+          <li>EIA. <em>Electric Power Annual 2022</em>. U.S. Energy Information Administration, 2023. Emission factors for coal, natural gas, and peaker plants. <a href="https://www.eia.gov/electricity/annual/" class="cite-link" target="_blank" rel="noopener">eia.gov</a></li>
+        </ul>
       </div>
 
     </aside>

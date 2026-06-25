@@ -109,6 +109,137 @@ const state = {
   },
 };
 
+/* ── Exponential slider helpers for emission rate ───────────── */
+// Maps slider position [0,1] ↔ Q [0.01, 100] g/s logarithmically.
+const Q_MIN = 0.01, Q_MAX = 100;
+function sliderToQ(t) {
+  // t ∈ [0,1] → Q ∈ [Q_MIN, Q_MAX]
+  return Q_MIN * Math.pow(Q_MAX / Q_MIN, t);
+}
+function qToSlider(q) {
+  // Q → t ∈ [0,1]
+  return Math.log(q / Q_MIN) / Math.log(Q_MAX / Q_MIN);
+}
+
+/**
+ * Typical source emission rates [g/s] derived from EPA AP-42 emission factors
+ * and representative plant heat inputs / engine ratings.
+ *
+ * NOₓ & NO₂ sources:
+ *   - Diesel  (≥600 hp): AP-42 §3.4 Table 3.4-1; NOₓ EF = 0.024 lb/hp-hr (uncontrolled)
+ *                        NO₂ is ~10 % of total NOₓ as primary emission (AP-42 §3.4 note)
+ *                        PM₂.₅ EF = 0.00070 lb/hp-hr (AP-42 §3.4 Table 3.4-1)
+ *   - Small diesel gen: EPA Tier 4 Final limits (40 CFR Part 1039)
+ *                       NOₓ ≤ 4.0 g/kW-hr (~3.0 g/hp-hr) for 37–75 kW, ~134 hp @ 100 kW
+ *                       PM  ≤ 0.03 g/kW-hr → 0.022 g/hp-hr
+ *   - Gas turbines:     AP-42 §3.1 Table 3.1-1 (natural gas, DLN / low-NOₓ burner)
+ *                       NOₓ EF ≈ 0.036–0.05 lb/MMBtu after DLN; PM₂.₅ EF ≈ 0.0066 lb/MMBtu
+ *                       NO₂ is ~5 % of total NOₓ as primary (unoxidised NO dominates)
+ *   - Coal (pulverised, wall-fired, bituminous):
+ *                       AP-42 §1.1 Table 1.1-3; NOₓ EF = 0.088 lb/MMBtu (with SCR)
+ *                       PM₂.₅ EF = 0.006 lb/MMBtu (filterable, fabric filter/ESP; §1.1 Table 1.1-6)
+ *                       NO₂ is ~5 % of stack NOₓ (rest is NO after SCR)
+ *
+ * Plant sizes used:
+ *   Small diesel gen:   100 kW  → 134 hp  → q = EF × hp / 3600 (×453.6 g/lb if lb)
+ *   Large diesel genset: 2 MW   → 2,682 hp
+ *   NG peaker (simple cycle GT): 100 MW, HR 10,000 BTU/kWh → 1,000 MMBtu/hr heat input
+ *   CCGT 400 MW, HR 6,500 BTU/kWh → 2,600 MMBtu/hr
+ *   Large coal 500 MW, HR 10,000 BTU/kWh → 5,000 MMBtu/hr
+ *   Super-critical coal 800 MW, HR 8,600 BTU/kWh → 6,880 MMBtu/hr
+ *
+ * Conversion:  lb/MMBtu × MMBtu/hr × 453.592 g/lb ÷ 3600 s/hr  = g/s
+ *              lb/hp-hr × hp       × 453.592 g/lb ÷ 3600 s/hr  = g/s
+ *
+ * Each entry carries independent g/s values per pollutant so no generic
+ * scaling factor is applied across pollutants.
+ */
+const EMISSION_PRESETS = [
+  // ── Diesel sources ─────────────────────────────────────────────────────
+  {
+    label: 'Small diesel generator (100 kW)',
+    // Tier 4 Final limits (40 CFR Part 1039 / NSPS Subpart IIII), 100 kW / 134 hp
+    // NOₓ: 0.298 g/hp-hr × 134 hp ÷ 3600 = 0.0111 g/s
+    // NO₂: 5 % primary fraction → 0.000556 g/s
+    // PM₂.₅: 0.0149 g/hp-hr × 134 hp ÷ 3600 = 0.000555 g/s
+    q: { nox: 0.0111, no2: 0.000556, pm25: 0.000555 },
+    cite: '40 CFR Part 1039 / NSPS Subpart IIII Tier 4 Final; 100 kW / 134 hp genset',
+  },
+  {
+    label: 'Large diesel genset — data center (2 MW)',
+    // AP-42 §3.4 Table 3.4-1 (≥600 hp, uncontrolled): NOₓ EF 0.024 lb/hp-hr, PM₂.₅ 0.0007 lb/hp-hr
+    // 2 MW = 2,682 hp; conversion: EF × hp × 453.592 / 3600 = EF × hp × 0.1260
+    // NOₓ: 0.024 × 2682 × 0.1260 = 8.11 g/s
+    // NO₂: 5 % primary (AP-42 §3.4) → 0.406 g/s
+    // PM₂.₅: 0.0007 × 2682 × 0.1260 = 0.237 g/s
+    q: { nox: 8.11, no2: 0.406, pm25: 0.237 },
+    cite: 'AP-42 §3.4 Table 3.4-1 (≥600 hp, uncontrolled); 2 MW / 2,682 hp unit',
+  },
+  // ── Natural gas turbines ──────────────────────────────────────────────────
+  {
+    label: 'Natural gas peaker — simple cycle (100 MW)',
+    // AP-42 §3.1 Table 3.1-2a; DLN controlled: NOₓ 0.036 lb/MMBtu, PM₂.₅ 0.0066 lb/MMBtu
+    // 100 MW_e, HR 10,000 BTU/kWh → heat input 1,000 MMBtu/hr
+    // Conversion: EF × MMBtu/hr × 0.1260 = g/s
+    // NOₓ: 0.036 × 1000 × 0.1260 = 4.54 g/s
+    // NO₂: 5 % primary → 0.227 g/s
+    // PM₂.₅: 0.0066 × 1000 × 0.1260 = 0.832 g/s
+    q: { nox: 4.54, no2: 0.227, pm25: 0.832 },
+    cite: 'AP-42 §3.1 Table 3.1-2a (natural gas, DLN); 100 MW_e, HR 10,000 BTU/kWh',
+  },
+  {
+    label: 'Combined-cycle gas turbine — CCGT (400 MW)',
+    // AP-42 §3.1: same DLN EFs apply when no supplementary duct burner
+    // 400 MW_e, HR 6,800 BTU/kWh → heat input 2,720 MMBtu/hr
+    // NOₓ: 0.036 × 2720 × 0.1260 = 12.34 g/s
+    // NO₂: 5 % → 0.617 g/s
+    // PM₂.₅: 0.0066 × 2720 × 0.1260 = 2.26 g/s
+    q: { nox: 12.34, no2: 0.617, pm25: 2.26 },
+    cite: 'AP-42 §3.1 Table 3.1-2a (natural gas, DLN); 400 MW_e CCGT, HR 6,800 BTU/kWh',
+  },
+  // ── Coal-fired boilers ────────────────────────────────────────────────────
+  {
+    label: 'Coal power plant, wall-fired PC (500 MW)',
+    // AP-42 §1.1 Table 1.1-3: uncontrolled NOₓ 21 lb/ton bituminous (12,000 BTU/lb)
+    // = 0.875 lb/MMBtu; with 90% SCR → 0.0875 lb/MMBtu
+    // 500 MW_e, HR 9,800 BTU/kWh → heat input 4,900 MMBtu/hr
+    // NOₓ: 0.0875 × 4900 × 0.1260 = 54.0 g/s
+    // NO₂: 5 % primary → 2.70 g/s
+    // PM₂.₅ (AP-42 §1.1 Table 1.1-5/6, fabric filter): 0.006 lb/MMBtu
+    // PM₂.₅: 0.006 × 4900 × 0.1260 = 3.70 g/s
+    q: { nox: 54.0, no2: 2.70, pm25: 3.70 },
+    cite: 'AP-42 §1.1 Tables 1.1-3 & 1.1-5/6 (wall-fired PC, SCR, fabric filter); 500 MW_e',
+  },
+  {
+    label: 'Super-critical coal boiler (800 MW)',
+    // Same AP-42 EFs; supercritical HR 8,800 BTU/kWh → heat input 7,040 MMBtu/hr
+    // NOₓ: 0.0875 × 7040 × 0.1260 = 77.6 g/s
+    // NO₂: 5 % → 3.88 g/s
+    // PM₂.₅: 0.006 × 7040 × 0.1260 = 5.32 g/s
+    q: { nox: 77.6, no2: 3.88, pm25: 5.32 },
+    cite: 'AP-42 §1.1 Tables 1.1-3 & 1.1-5/6 (wall-fired PC, SCR, fabric filter); 800 MW_e SC',
+  },
+];
+
+/** Rebuild the preset <select> options to reflect the active pollutant. */
+function updateEmissionPresets() {
+  const pol = state.pollutant;                                // 'nox' | 'no2' | 'pm25'
+  const sym = { nox: 'NOₓ', no2: 'NO₂', pm25: 'PM₂.₅' }[pol];
+  const sel = document.getElementById('emission-preset');
+  if (!sel) return;
+
+  sel.innerHTML = '<option value="">\u2014 select \u2014</option>' +
+    EMISSION_PRESETS.map(({ label, q }) => {
+      const val = q[pol];
+      // Format the value with sensible precision
+      const qFmt = val < 0.01 ? val.toExponential(1)
+                 : val < 0.1  ? val.toFixed(3)
+                 : val < 10   ? val.toFixed(2)
+                 : val.toFixed(1);
+      return `<option value="${val}">${label} (~${qFmt} g/s ${sym})</option>`;
+    }).join('');
+}
+
 /* ─────────────────────────────────────────────────────────────────
    3.  MAP INITIALISATION
    ───────────────────────────────────────────────────────────────── */
@@ -688,7 +819,8 @@ function updateLegend(maxConc) {
 
 function updateParamsTable() {
   const { sigmaY, sigmaZ } = computeSigmas(1000, state.stab);
-  document.getElementById('pt-q').textContent    = `${state.Q.toFixed(1)} g/s`;
+  const qFmt = state.Q < 0.1 ? state.Q.toFixed(3) : state.Q < 10 ? state.Q.toFixed(2) : state.Q.toFixed(1);
+  document.getElementById('pt-q').textContent    = `${qFmt} g/s`;
   document.getElementById('pt-h').textContent    = `${state.H} m`;
   document.getElementById('pt-u').textContent    = `${state.windSpeed.toFixed(1)} m/s`;
   document.getElementById('pt-wd').textContent   = `${state.windDir}° (${cardinalDir(state.windDir)})`;
@@ -825,8 +957,6 @@ function drawWindRose() {
 /* ── Wind-rose click/drag to set wind direction ─────────────── */
 (function initWindRoseDrag() {
   const canvas  = document.getElementById('wind-rose');
-  const slider  = document.getElementById('wind-direction');
-  const valEl   = document.getElementById('val-wind-direction');
   let dragging  = false;
 
   function angleFromEvent(e) {
@@ -844,9 +974,14 @@ function drawWindRose() {
   function applyAngle(e) {
     const deg = angleFromEvent(e);
     state.windDir = deg;
-    slider.value = deg;
-    valEl.textContent = `${deg}° (${cardinalDir(deg)})`;
-    updateSliderFill(slider);
+    
+    // Sync the number input
+    const numIn = document.getElementById('wind-direction-num');
+    if (numIn) numIn.value = deg;
+    
+    const unitSpan = document.getElementById('unit-wind-direction');
+    if (unitSpan) unitSpan.textContent = `° (${cardinalDir(deg)})`;
+    
     drawWindRose();
     scheduleRedraw();
   }
@@ -927,28 +1062,70 @@ function updateSliderFill(el) {
   el.style.setProperty('--pct', pct + '%');
 }
 
-function bindSlider(id, stateKey, valId, formatter, onChange) {
-  const el    = document.getElementById(id);
-  const valEl = document.getElementById(valId);
-  const fire  = () => {
-    const v = parseFloat(el.value);
-    state[stateKey] = v;
-    valEl.textContent = formatter(v);
-    updateSliderFill(el);
-    if (onChange) onChange(v);
+
+
+/* ── Exponential emission-rate slider ─────────────────────── */
+(function () {
+  const slider  = document.getElementById('emission-rate');
+  const numIn   = document.getElementById('emission-rate-num');
+
+  function formatQ(q) {
+    if (q < 0.1) return q.toFixed(3);
+    if (q < 10)  return q.toFixed(2);
+    return q.toFixed(1);
+  }
+
+  function applyQ(q) {
+    q = Math.max(Q_MIN, Math.min(Q_MAX, q));
+    state.Q = q;
+    const t = qToSlider(q);
+    slider.value = t;
+    numIn.value  = formatQ(q);
+    updateSliderFill(slider);
     scheduleRedraw();
-  };
-  el.addEventListener('input', fire);
-  fire();
+  }
+
+  slider.addEventListener('input', () => {
+    const q = sliderToQ(parseFloat(slider.value));
+    applyQ(q);
+  });
+
+  numIn.addEventListener('change', () => {
+    const q = parseFloat(numIn.value);
+    if (!isNaN(q) && q > 0) applyQ(q);
+  });
+  numIn.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') numIn.dispatchEvent(new Event('change'));
+  });
+
+  // Init
+  applyQ(state.Q);
+})();
+
+/* ── Preset emission-rate selector ───────────────────────── */
+document.getElementById('emission-preset').addEventListener('change', function () {
+  if (!this.value) return;
+  const q = parseFloat(this.value);
+  // Trigger via the number input's change pathway to keep everything in sync
+  const numIn = document.getElementById('emission-rate-num');
+  numIn.value = q;
+  numIn.dispatchEvent(new Event('change'));
+  // Reset the select back to placeholder so it can be re-selected
+  this.value = '';
+});
+
+/* ── Cite-link scrolls to citation card in info panel ──── */
+const citeEl = document.getElementById('cite-link');
+if (citeEl) {
+  citeEl.addEventListener('click', (e) => {
+    e.preventDefault();
+    const card = document.getElementById('citation-card');
+    if (card) card.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
 }
 
-bindSlider('emission-rate',  'Q',         'val-emission-rate',  v => `${v.toFixed(1)} g/s`);
-bindSlider('stack-height',   'H',         'val-stack-height',   v => `${v} m`);
-bindSlider('wind-speed',     'windSpeed', 'val-wind-speed',     v => `${v.toFixed(1)} m/s`);
-bindSlider('wind-direction', 'windDir',   'val-wind-direction', v => `${Math.round(v)}° (${cardinalDir(v)})`, () => drawWindRose());
 // Opacity slider: HTML range is 0–100 (integer %) but state.opacity is 0–1.
-// bindSlider would naively set state.opacity = 70, so we bypass it for this
-// control and wire it up manually.
+// We wire it up manually here.
 (function () {
   const el    = document.getElementById('opacity-slider');
   const valEl = document.getElementById('val-opacity');
@@ -961,6 +1138,57 @@ bindSlider('wind-direction', 'windDir',   'val-wind-direction', v => `${Math.rou
   };
   el.addEventListener('input', fire);
   fire();
+})();
+
+/* ── Manual number inputs for stack height, wind speed, wind direction ── */
+(function bindManualInputs() {
+  function bindNumericManual(numId, sliderId, stateKey, min, max, onChange) {
+    const numIn  = document.getElementById(numId);
+    const slider = sliderId ? document.getElementById(sliderId) : null;
+    if (!numIn) return;
+
+    function apply(v) {
+      v = Math.max(min, Math.min(max, v));
+      state[stateKey] = v;
+      if (slider) slider.value = v;
+      numIn.value  = v;
+      if (slider) updateSliderFill(slider);
+      if (onChange) onChange(v);
+      scheduleRedraw();
+    }
+
+    if (slider) {
+      // Keep number input in sync when slider changes
+      slider.addEventListener('input', () => {
+        const v = parseFloat(slider.value);
+        state[stateKey] = v;
+        numIn.value = v;
+        updateSliderFill(slider);
+        if (onChange) onChange(v);
+        scheduleRedraw();
+      });
+    }
+
+    numIn.addEventListener('change', () => {
+      const v = parseFloat(numIn.value);
+      if (!isNaN(v)) apply(v);
+    });
+    numIn.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') numIn.dispatchEvent(new Event('change'));
+    });
+
+    // Init
+    apply(state[stateKey]);
+  }
+
+  bindNumericManual('stack-height-num', 'stack-height', 'H', 10, 250);
+
+  bindNumericManual('wind-speed-num', 'wind-speed', 'windSpeed', 0.5, 15);
+
+  bindNumericManual('wind-direction-num', null, 'windDir', 0, 359, (v) => {
+    document.getElementById('unit-wind-direction').textContent = `° (${cardinalDir(v)})`;
+    drawWindRose();
+  });
 })();
 
 // Stability buttons
@@ -981,11 +1209,13 @@ document.querySelectorAll('.stab-btn').forEach(btn => {
 });
 document.getElementById('stab-desc').textContent = STABILITY_DESCRIPTIONS[state.stab];
 
+
 // Pollutant select
 document.getElementById('pollutant-select').addEventListener('change', function () {
   state.pollutant = this.value;
   document.getElementById('val-pollutant').textContent =
     { nox: 'NOₓ', no2: 'NO₂', pm25: 'PM₂.₅' }[this.value];
+  updateEmissionPresets();   // re-scale preset values and labels
   scheduleRedraw();
 });
 
@@ -1017,23 +1247,31 @@ document.getElementById('btn-reset').addEventListener('click', () => {
   state.windDir = 220; state.stab = 'C'; state.pollutant = 'nox'; state.opacity = 0.70;
   state.showContours = true;
 
-  document.getElementById('emission-rate').value  = 3.0;
+  // Emission rate (exponential slider)
+  const emSlider = document.getElementById('emission-rate');
+  emSlider.value = qToSlider(3.0);
+  updateSliderFill(emSlider);
+  document.getElementById('emission-rate-num').value = '3.00';
+  document.getElementById('emission-preset').value = '';
+
+  // Stack height
   document.getElementById('stack-height').value   = 75;
+  document.getElementById('stack-height-num').value = 75;
+  // Wind speed
   document.getElementById('wind-speed').value     = 3.0;
-  document.getElementById('wind-direction').value = 220;
+  document.getElementById('wind-speed-num').value = 3.0;
+  // Wind direction
+  document.getElementById('wind-direction-num').value = 220;
+  // Opacity
   document.getElementById('opacity-slider').value = 70;
   document.getElementById('pollutant-select').value = 'nox';
   document.getElementById('toggle-contours').checked = true;
 
-
-  ['emission-rate','stack-height','wind-speed','wind-direction','opacity-slider'].forEach(id =>
+  ['stack-height','wind-speed','opacity-slider'].forEach(id =>
     updateSliderFill(document.getElementById(id))
   );
 
-  document.getElementById('val-emission-rate').textContent  = '3.0 g/s';
-  document.getElementById('val-stack-height').textContent   = '75 m';
-  document.getElementById('val-wind-speed').textContent     = '3.0 m/s';
-  document.getElementById('val-wind-direction').textContent = `220° (${cardinalDir(220)})`;
+  document.getElementById('unit-wind-direction').textContent = `° (${cardinalDir(220)})`;
   document.getElementById('val-opacity').textContent        = '70%';
   document.getElementById('val-pollutant').textContent      = 'NOₓ';
 
@@ -1048,6 +1286,7 @@ document.getElementById('btn-reset').addEventListener('click', () => {
   drawWindRose();
   drawSigmaChart();
   updateParamsTable();
+  updateEmissionPresets();   // refresh presets back to NOₓ scale
   setStatus('', 'Click the map to place an emission source');
 });
 
@@ -1065,7 +1304,8 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') helpModal.hi
 drawWindRose();
 drawSigmaChart();
 updateParamsTable();
-['emission-rate','stack-height','wind-speed','wind-direction','opacity-slider'].forEach(id =>
+updateEmissionPresets();   // populate preset options on startup
+['emission-rate','stack-height','wind-speed','opacity-slider'].forEach(id =>
   updateSliderFill(document.getElementById(id))
 );
 setStatus('', 'Click the map to place an emission source');
