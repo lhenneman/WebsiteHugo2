@@ -54,6 +54,6 @@ interests:
 #   link: uploads/Hoda_CV.pdf
 
 user_groups: 
-- "Students"
+- "Alumni"
 ---
 

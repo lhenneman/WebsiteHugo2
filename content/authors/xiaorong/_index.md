@@ -64,7 +64,7 @@ email: ""
 # Organizational groups that you belong to (for People widget)
 #   Set this to `[]` or comment out if you are not using People widget.  
 user_groups: 
-- "Students"
+- "Alumni"
 ---
 
 My research focuses on using different source-specific air models to estimate emissions or exposures from specific sources. I am examining anthropogenic sources such as on-road vehicles, power plants, oil and gas wells, and residential and commercial coal combustion, as well as natural sources like wildfires. I analyze time series data, applying various scenarios in my models to explore historical, present, and even future trends to assess how legislation and regulations have affected air quality and their health impacts.

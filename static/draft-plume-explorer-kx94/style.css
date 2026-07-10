@@ -105,6 +105,7 @@ html, body {
 }
 .btn-icon svg { width: 16px; height: 16px; }
 .btn-icon:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-glow); }
+.btn-icon:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
 .btn-secondary {
   display: flex; align-items: center; gap: 7px;
@@ -122,6 +123,7 @@ html, body {
 }
 .btn-secondary svg { width: 14px; height: 14px; }
 .btn-secondary:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-glow); }
+.btn-secondary:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
 /* ── App layout ──────────────────────────────────────────── */
 .app-layout {
@@ -186,7 +188,28 @@ html, body {
   color: var(--text-primary);
 }
 .loc-label { color: var(--text-muted); }
-.loc-value { color: var(--accent); min-width: 60px; }
+
+.loc-input {
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--accent);
+  font-family: inherit;
+  font-size: inherit;
+  width: 70px;
+  padding: 0;
+  outline: none;
+  -moz-appearance: textfield;
+  transition: border-color var(--t-fast);
+}
+.loc-input:focus, .loc-input:focus-visible {
+  border-bottom: 1px solid var(--accent);
+  outline: none;
+}
+.loc-input::-webkit-inner-spin-button,
+.loc-input::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
 
 /* ── Control groups ──────────────────────────────────────── */
 .control-group { margin-bottom: 16px; }
@@ -285,6 +308,12 @@ html, body {
   box-shadow: 0 0 0 3px var(--bg-surface);
   cursor: grab;
 }
+.slider:focus-visible::-webkit-slider-thumb {
+  box-shadow: 0 0 0 3px var(--bg-surface), 0 0 0 5px var(--accent);
+}
+.slider:focus-visible::-moz-range-thumb {
+  box-shadow: 0 0 0 3px var(--bg-surface), 0 0 0 5px var(--accent);
+}
 
 .slider-bounds {
   display: flex;
@@ -321,7 +350,7 @@ html, body {
 }
 .manual-input::-webkit-inner-spin-button,
 .manual-input::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
-.manual-input:focus {
+.manual-input:focus, .manual-input:focus-visible {
   outline: none;
   border-color: var(--accent);
   box-shadow: 0 0 0 2px var(--accent-glow);
@@ -366,7 +395,7 @@ html, body {
   background-repeat: no-repeat;
   background-position: right 8px center;
 }
-.preset-select:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent-glow); }
+.preset-select:focus, .preset-select:focus-visible { outline: none; border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent-glow); }
 
 /* ── Citation link ───────────────────────────────────────────── */
 .cite-link {
@@ -437,6 +466,7 @@ html, body {
   color: #0b0e1a;  /* dark text on amber — 12.7:1 contrast ✓ */
   box-shadow: 0 0 12px var(--accent-glow);
 }
+.stab-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
 .stability-badge {
   font-family: 'JetBrains Mono', monospace;
@@ -462,7 +492,7 @@ html, body {
   background-repeat: no-repeat;
   background-position: right 12px center;
 }
-.custom-select:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent-glow); }
+.custom-select:focus, .custom-select:focus-visible { outline: none; border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent-glow); }
 
 /* ── Toggle switch ───────────────────────────────────────── */
 .toggle-label {
@@ -498,6 +528,10 @@ html, body {
 }
 .toggle-switch input:checked + .toggle-track { background: var(--accent); border-color: var(--accent); }
 .toggle-switch input:checked + .toggle-track::after { transform: translateX(16px); background: #fff; }
+.toggle-switch input:focus-visible + .toggle-track {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
 
 /* ── Compute status ──────────────────────────────────────── */
 .compute-status {

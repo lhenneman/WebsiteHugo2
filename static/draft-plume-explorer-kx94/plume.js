@@ -1042,9 +1042,61 @@ map.on('click', (e) => {
 });
 
 function updateLocationDisplay(lat, lng) {
-  document.getElementById('loc-lat').textContent = lat.toFixed(4);
-  document.getElementById('loc-lon').textContent = lng.toFixed(4);
+  const latInput = document.getElementById('loc-lat');
+  const lonInput = document.getElementById('loc-lon');
+  if (latInput && document.activeElement !== latInput) latInput.value = lat.toFixed(4);
+  if (lonInput && document.activeElement !== lonInput) lonInput.value = lng.toFixed(4);
 }
+
+// Allow manual lat/lon input
+function bindLatLonInputs() {
+  const latInput = document.getElementById('loc-lat');
+  const lonInput = document.getElementById('loc-lon');
+  
+  function applyManualLocation() {
+    const lat = parseFloat(latInput.value);
+    const lon = parseFloat(lonInput.value);
+    if (isNaN(lat) || isNaN(lon)) return;
+    
+    state.sourceLat = lat;
+    state.sourceLon = lon;
+    
+    if (sourceMarker) {
+      sourceMarker.setLatLng([lat, lon]);
+    } else {
+      sourceMarker = L.marker([lat, lon], {
+        icon: sourceIcon, draggable: true, zIndexOffset: 1000,
+      }).addTo(map);
+      
+      sourceMarker.on('drag', (ev) => {
+        const p = ev.target.getLatLng();
+        state.sourceLat = p.lat;
+        state.sourceLon = p.lng;
+        updateLocationDisplay(p.lat, p.lng);
+        scheduleRedraw();
+      });
+      sourceMarker.on('dragend', () => {
+        plumeLayer._drawnSrcPt = null;
+        scheduleRedraw(true);
+      });
+      
+      document.getElementById('click-hint').classList.add('hidden');
+    }
+    
+    // Pan map to new center if outside current bounds
+    if (!map.getBounds().contains([lat, lon])) {
+      map.panTo([lat, lon]);
+    }
+    
+    scheduleRedraw(true);
+  }
+
+  latInput.addEventListener('change', applyManualLocation);
+  lonInput.addEventListener('change', applyManualLocation);
+  latInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') applyManualLocation(); });
+  lonInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') applyManualLocation(); });
+}
+bindLatLonInputs();
 
 /* ─────────────────────────────────────────────────────────────────
    9.  CONTROL BINDINGS
@@ -1234,8 +1286,8 @@ document.getElementById('btn-reset').addEventListener('click', () => {
   if (canvas) canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
   document.getElementById('stats-card').classList.remove('visible');
   document.getElementById('click-hint').classList.remove('hidden');
-  document.getElementById('loc-lat').textContent = '—';
-  document.getElementById('loc-lon').textContent = '—';
+  document.getElementById('loc-lat').value = '';
+  document.getElementById('loc-lon').value = '';
 
   // ── Reset all controls ────────────────────────────────────
   state.Q = 3.0; state.H = 75; state.windSpeed = 3.0;

@@ -6,7 +6,7 @@ title: Lucas RF Henneman, PI
 superuser: true
 
 # Role/position/tagline
-role: Assistant Professor
+role: Associate Professor
 
 # Organizations/Affiliations to show in About widget
 organizations:
@@ -22,7 +22,6 @@ interests:
  - Health effects of air quality interventions
  - Air pollution modeling
  - Regulatory accountability
- - Big data applications
 
 # Education to show in About widget
 education:
