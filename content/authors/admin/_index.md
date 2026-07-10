@@ -44,9 +44,9 @@ social:
 - icon: envelope
   icon_pack: fas
   link: '#contact'  # For a direct email link, use "mailto:test@example.org".
-- icon: twitter
+- icon: linkedin
   icon_pack: fab
-  link: https://twitter.com/lucas_henneman
+  link: www.linkedin.com/in/lucas-henneman-88118427
 - icon: google-scholar
   icon_pack: ai
   link: https://scholar.google.com/citations?user=IL-s1LkAAAAJ&hl=en
