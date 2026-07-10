@@ -1,5 +1,5 @@
 ---
-title: "CEIE 499 Climate Change Engineering and Policy"
+title: "CEIE 452/552 Climate Change Engineering and Policy"
 date: 2022-03-16T09:48:20-05:00
 draft: false
 tags: [engineering,air quality,environment,modeling,emissions,climate change]
@@ -14,7 +14,7 @@ By the end of this course, students will be able to:
  - Describe proposed and enacted climate policy and perform relevant calculations
 
 ## Course syllabus
-The Spring 2023 syllabus is available [here](https://www.dropbox.com/s/c2isxl2wswd82a2/CEIE_499_Syllabus20220109.pdf?dl=0).
+The Fall 2024 syllabus is available [here](/Users/lhennem/Library/CloudStorage/Dropbox/GeorgeMason/Teaching/CEIE_499_clim/2024_fall/Syllabus/CEIE_552_Syllabus20250902.pdf).
 
 
 
