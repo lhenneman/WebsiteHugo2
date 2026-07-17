@@ -1,0 +1,347 @@
+/* =========================================================
+   Simple Energy Balance — style.css
+   ========================================================= */
+
+/* ── Reset & tokens ─────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  /* Backgrounds: deep navy */
+  --bg-base:       #0b0e1a;   /* deepest navy */
+  --bg-surface:    #121627;   /* panel surface */
+  --bg-raised:     #1a2033;   /* cards / inputs */
+  --bg-hover:      #202640;   /* hover state */
+  --border:        rgba(180,195,255,0.10);   /* subtle outlines */
+  --border-strong: rgba(180,195,255,0.22);   /* stronger outlines */
+
+  /* Brand / accent — warm sun colors */
+  --accent:        #f59e0b;   
+  --accent-glow:   rgba(245, 158, 11, 0.18);
+  --accent-2:      #d97706;   
+  --success:       #4ade80;   
+  --warn:          #fb923c;   
+  --danger:        #f87171;   
+
+  /* Text */
+  --text-primary:   #f0f2ff;
+  --text-secondary: #b8c4e8;
+  --text-muted:     #6a7baa;
+
+  /* Layout */
+  --header-h:    60px;
+  --panel-w:     380px;
+  --info-w:      320px;
+  --radius:      12px;
+  --radius-sm:   8px;
+  --radius-xs:   5px;
+  --shadow:      0 4px 24px rgba(0,0,0,0.5);
+  --shadow-lg:   0 12px 48px rgba(0,0,0,0.7);
+
+  /* Transitions */
+  --t-fast:  0.12s ease;
+  --t-med:   0.22s ease;
+}
+
+html, body {
+  height: 100%;
+  font-family: 'Inter', system-ui, sans-serif;
+  font-size: 15px;
+  color: var(--text-primary);
+  background: var(--bg-base);
+  overflow: hidden;
+}
+
+/* ── Header ─────────────────────────────────────────────── */
+.app-header {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  height: var(--header-h);
+  background: rgba(13,15,20,0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 20px;
+  z-index: 1000;
+}
+
+.header-left { display: flex; align-items: center; gap: 14px; }
+.logo-icon { width: 40px; height: 40px; flex-shrink: 0; }
+.logo-icon svg { width: 100%; height: 100%; }
+
+.app-title {
+  font-size: 18px;
+  font-weight: 700;
+  background: linear-gradient(135deg, var(--accent), var(--accent-2));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  line-height: 1.2;
+}
+.app-subtitle { font-size: 11px; color: var(--text-secondary); font-weight: 400; }
+
+.header-right { display: flex; align-items: center; gap: 10px; }
+
+.btn-secondary {
+  display: flex; align-items: center; gap: 7px;
+  padding: 0 14px;
+  height: 36px;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  background: var(--bg-raised);
+  color: var(--text-secondary);
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all var(--t-fast);
+}
+.btn-secondary svg { width: 14px; height: 14px; }
+.btn-secondary:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-glow); }
+.btn-secondary:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+/* ── App layout ──────────────────────────────────────────── */
+.app-layout {
+  display: grid;
+  grid-template-columns: var(--panel-w) 1fr var(--info-w);
+  height: 100vh;
+  padding-top: var(--header-h);
+}
+
+/* ── Control panel ───────────────────────────────────────── */
+.control-panel {
+  background: var(--bg-surface);
+  border-right: 1px solid var(--border);
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 16px 0;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-strong) transparent;
+}
+.control-panel::-webkit-scrollbar { width: 4px; }
+.control-panel::-webkit-scrollbar-track { background: transparent; }
+.control-panel::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 4px; }
+
+/* ── Right Info Panel ────────────────────────────────────── */
+.info-panel {
+  background: var(--bg-surface);
+  border-left: 1px solid var(--border);
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 16px 0;
+}
+
+.panel-section { padding: 12px 16px; }
+
+.section-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-secondary);
+  margin-bottom: 20px;
+}
+.section-icon { font-size: 14px; }
+
+/* ── Control groups ──────────────────────────────────────── */
+.control-group { margin-bottom: 24px; }
+.control-group:last-child { margin-bottom: 0; }
+
+.control-label {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-primary);
+  margin-bottom: 12px;
+  cursor: default;
+}
+
+.control-value, .control-value-group {
+  display: flex;
+  align-items: baseline;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  font-weight: 600;
+  color: #fff;
+  background: var(--accent-2);
+  padding: 2px 8px;
+  border-radius: 4px;
+  min-width: 68px;
+  text-align: right;
+  justify-content: flex-end;
+}
+
+.control-value-group:focus-within {
+  box-shadow: 0 0 0 2px var(--accent-glow);
+}
+
+.control-value-input {
+  background: transparent;
+  border: none;
+  color: inherit;
+  font-family: inherit;
+  font-size: inherit;
+  font-weight: inherit;
+  text-align: right;
+  width: 50px;
+  padding: 0;
+  outline: none;
+  -moz-appearance: textfield;
+}
+
+.control-value-input::-webkit-inner-spin-button,
+.control-value-input::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.control-value-unit {
+  margin-left: 4px;
+}
+
+.control-desc {
+  font-size: 12px;
+  color: var(--text-muted);
+  line-height: 1.5;
+  margin-top: 8px;
+}
+
+/* Discrete controls (buttons) */
+.discrete-controls {
+  display: flex;
+  gap: 4px;
+  margin-top: 8px;
+}
+
+.btn-discrete {
+  flex: 1;
+  height: 28px;
+  background: var(--bg-raised);
+  border: 1px solid var(--border-strong);
+  color: var(--text-primary);
+  border-radius: var(--radius-xs);
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all var(--t-fast);
+}
+
+.btn-discrete:hover:not(:disabled) {
+  background: var(--accent-glow);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.btn-discrete:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+
+/* ── Sliders ─────────────────────────────────────────────── */
+.slider {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 5px;
+  background: var(--bg-raised);
+  border: 1px solid var(--border-strong);
+  border-radius: 3px;
+  outline: none;
+  cursor: pointer;
+}
+
+.slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 17px; height: 17px;
+  border-radius: 50%;
+  background: var(--text-primary);
+  cursor: pointer;
+  box-shadow: 0 0 5px rgba(0,0,0,0.3);
+  transition: transform var(--t-fast);
+}
+
+.slider::-webkit-slider-thumb:hover {
+  transform: scale(1.15);
+  background: #ffffff;
+}
+
+.slider:focus-visible::-webkit-slider-thumb {
+  outline: 2px solid var(--accent); outline-offset: 2px;
+}
+
+/* ── Main content (Right side) ────────────────────────────── */
+.main-content {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  position: relative;
+  overflow: hidden;
+}
+
+.viz-container {
+  flex: 1;
+  width: 100%;
+  background: radial-gradient(circle at center, #1a2033 0%, var(--bg-base) 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.equations-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.equation-box {
+  background: var(--bg-raised);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px 20px;
+  text-align: center;
+  box-shadow: var(--shadow);
+}
+
+.equation-box.highlight {
+  border-color: var(--accent);
+  background: rgba(245, 158, 11, 0.05);
+}
+
+.equation-box h3 {
+  font-size: 12px;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  margin-bottom: 8px;
+  letter-spacing: 0.05em;
+}
+
+.equation-box p {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 14px;
+  color: var(--text-primary);
+  margin: 4px 0;
+}
+
+.result-value {
+  font-size: 24px !important;
+  font-weight: 700;
+  color: var(--accent) !important;
+  margin-top: 12px !important;
+}
+
+.result-value-sub {
+  font-size: 16px !important;
+  color: var(--text-secondary) !important;
+}
