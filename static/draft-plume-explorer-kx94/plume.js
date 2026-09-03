@@ -245,29 +245,16 @@ const map = L.map('map', {
   attributionControl: true,
 });
 
-// Tile layers: CartoDB dark_all as primary; OSM (dark-filtered via CSS) as fallback base.
-// OSM is added first so it's always there if CartoDB tiles fail to load.
-const osmLayer = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-  attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-  maxZoom:     19,
-});
-
-// CartoDB light_all: clean neutral grey — the same palette as the reference AQ visualiser.
-// Provides great contrast for the coloured plume overlay without the harshness of Voyager.
-const cartoLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png', {
-  attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
-  subdomains:  'abcd',
-  maxZoom:     19,
-});
-
-// Tile layers: CartoDB Voyager (neutral, readable) as primary; plain OSM as silent fallback.
-// Voyager is a medium-contrast basemap — not pitch-dark, not glaring white.
-osmLayer.addTo(map);
-cartoLayer.addTo(map);
-
-// If CartoDB fails, plain OSM shows through — no dark filter needed for Voyager.
-let cartoFailed = false;
-cartoLayer.on('tileerror', () => { cartoFailed = true; });
+// Base tile layer: Esri World Light Gray Canvas — clean neutral grey basemap
+// Provides excellent contrast for the plume overlay without requiring an API key.
+const baseLayer = L.tileLayer(
+  'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}',
+  {
+    attribution: 'Tiles &copy; Esri &mdash; Esri, DeLorme, NAVTEQ',
+    maxZoom:     16,
+  }
+);
+baseLayer.addTo(map);
 
 /* ── Inject dynamic CSS ────────────────────────────────────── */
 const dynStyle = document.createElement('style');
