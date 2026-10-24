@@ -10,9 +10,11 @@ document.addEventListener('DOMContentLoaded', () => {
     map.getPane('cordonPane').style.zIndex = 410;
     map.getPane('cordonPane').style.pointerEvents = 'none';
 
-    const tileLayerUrl = 'https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png';
-    const tileLayerAttrib = '&copy; OpenStreetMap &copy; CARTO';
-    L.tileLayer(tileLayerUrl, { attribution: tileLayerAttrib, maxZoom: 19 }).addTo(map);
+    // Base tile layer: Esri World Light Gray Canvas — clean neutral grey basemap
+    // Provides excellent contrast without requiring an API key.
+    const tileLayerUrl = 'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}';
+    const tileLayerAttrib = 'Tiles &copy; Esri &mdash; Esri, DeLorme, NAVTEQ';
+    L.tileLayer(tileLayerUrl, { attribution: tileLayerAttrib, maxZoom: 16 }).addTo(map);
 
     let geojsonData = null;
     let geojsonLayer = null;
